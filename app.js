@@ -34,16 +34,18 @@ app.use (morgan("dev"))
 
 app.use(cookieParser())
 
-app.use("/general", require("./resources/general/general.route.js"))
 app.use("/acc", require("./resources/acc/acc.router.js"))
 app.use("/bim360", require ("./resources/bim360/bim360.router.js"))
 
 app.get("/", (req, res) => {
-    res.status(200).json({
-        message: "Welcome to the API",
-        status: "success"
-    })
-})
+  res.json({ message: "BAY Backend API está viva 🚀" });
+});
+
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+  });
+}
 
 module.exports = app;
 
