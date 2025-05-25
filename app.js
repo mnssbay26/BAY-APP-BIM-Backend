@@ -38,7 +38,7 @@ app.use("/acc", require("./resources/acc/acc.router.js"))
 app.use("/bim360", require ("./resources/bim360/bim360.router.js"))
 
 app.get("/", (req, res) => {
-  res.json({ message: "BAY Backend API está viva 🚀" });
+  res.json({ message: "BAY Backend API alive 🚀" });
 });
 
 if (require.main === module) {
