@@ -1,5 +1,4 @@
 const { default: axios } = require("axios");
-const { format } = require("morgan");
 
 const { authorizedHub } = require("../../../const/hubs.const.js");
 

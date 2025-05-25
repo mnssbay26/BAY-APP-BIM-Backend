@@ -1,5 +1,4 @@
 const express = require ("express")
-const morgan = require ("morgan")
 const  cors = require ("cors")
 const cookieParser = require ("cookie-parser")
 const dotenv = require ("dotenv")
@@ -30,7 +29,10 @@ app.use(
 
 app.options('*', cors())
 
-app.use (morgan("dev"))
+if (process.env.NODE_ENV === "development") {
+  const morgan = require("morgan");
+  app.use(morgan("dev"));
+}
 
 app.use(cookieParser())
 
