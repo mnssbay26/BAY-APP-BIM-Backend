@@ -1,8 +1,11 @@
-const { default: axios } = require("axios");
+const axios = require("axios");
+const { authorizedHub } = require("../../../const/hubs.const");
 
-
-const { authorizedHub } = require("../../../const/hubs.const.js");
-
+/**
+ * Controller to fetch ACC projects from authorized hubs via Autodesk API.
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ */
 const GetProjects = async (req, res) => {
   const token = req.cookies["access_token"];
 
@@ -10,84 +13,72 @@ const GetProjects = async (req, res) => {
     return res.status(401).json({
       data: null,
       error: "Unauthorized",
-      message: "Unauthorized",
+      message: "Access token is missing",
     });
   }
 
   try {
-    const { data: hubsdata } = await axios.get(
+    const { data: hubsResponse } = await axios.get(
       "https://developer.api.autodesk.com/project/v1/hubs",
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
+      { headers: { Authorization: `Bearer ${token}` } }
     );
 
-    const targetHubs = hubsdata.data.filter((hub) =>
+    //console.debug("Hubs response:", hubsResponse);
+
+    const targetHubs = hubsResponse.data.filter((hub) =>
       authorizedHub.some((authHub) => authHub.id === hub.id)
     );
 
-    if (!targetHubs.length) {
+    //console.debug("Target hubs:", targetHubs);
+
+    if (targetHubs.length === 0) {
       return res.status(404).json({
         data: null,
-        error: "Hub not found",
-        message: "Not auuthorized hub found",
+        error: "HubNotFound",
+        message: "No authorized hubs found",
       });
     }
 
-    const projects = targetHubs.map((hub) => {
-      return axios
+    // Fetch projects for each authorized hub
+    const projectPromises = targetHubs.map((hub) =>
+      axios
         .get(
           `https://developer.api.autodesk.com/project/v1/hubs/${hub.id}/projects`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
+          { headers: { Authorization: `Bearer ${token}` } }
         )
         .then((response) => response.data.data)
-        .catch((error) => {
+        .catch((err) => {
           console.error(
             `Error fetching projects for hub ${hub.id}:`,
-            error.message || error
+            err.message
           );
           return [];
-        });
-    });
-
-    const projectsList = await Promise.all(projects);
-
-    const allProjects = projectsList.flat();
-
-    //console.log ('All Projects',allProjects)
-
-    const accProjects = allProjects.filter(
-      (project) =>
-        project.attributes &&
-        project.attributes.extension &&
-        project.attributes.extension.data &&
-        project.attributes.extension.data.projectType === "ACC"
+        })
     );
 
-    res.status(200).json({
-      data: {
-        projects: accProjects,
-      },
+    const projectsList = await Promise.all(projectPromises);
+    const allProjects = projectsList.flat();
+
+    //console.debug("All projects:", allProjects);
+
+    // Filter ACC projects
+    const accProjects = allProjects.filter(
+      (project) => project.attributes?.extension?.data?.projectType === "ACC"
+    );
+
+    return res.status(200).json({
+      data: { projects: accProjects },
       error: null,
-      message: "Access to ACC proyects",
+      message: "Access to ACC projects granted",
     });
-  } catch (error) {
-    console.error("Error fetching projects:", error.message || error);
-    res.status(500).json({
+  } catch (err) {
+    console.error("Error fetching projects:", err.message);
+    return res.status(500).json({
       data: null,
-      error: error.message,
-      message: "Error al obtener los proyectos",
+      error: err.message,
+      message: "Failed to retrieve ACC projects",
     });
   }
 };
 
-
-module.exports = {
-    GetProjects
-}
+module.exports = { GetProjects };

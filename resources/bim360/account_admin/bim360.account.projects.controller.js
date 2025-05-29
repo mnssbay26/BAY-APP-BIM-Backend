@@ -1,94 +1,80 @@
-const { default: axios } = require("axios");
+const axios = require("axios");
+const { authorizedHub } = require("../../../const/hubs.const");
 
-const { authorizedHub } = require("../../../const/hubs.const.js");
-
+/**
+ * Controller to fetch BIM360 projects from authorized hubs via Autodesk APS.
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ */
 const GetProjects = async (req, res) => {
-    const token = req.cookies["access_token"];
+  const token = req.cookies["access_token"];
 
-    if (!token) {
-        return res.status(401).json({
-            data: null,
-            error: "Unauthorized",
-            message: "Unauthorized",
-        });
+  if (!token) {
+    return res.status(401).json({
+      data: null,
+      error: "Unauthorized",
+      message: "Access token is missing",
+    });
+  }
+
+  try {
+    // Fetch all hubs
+    const { data: hubsResponse } = await axios.get(
+      "https://developer.api.autodesk.com/project/v1/hubs",
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    // Filter only authorized hubs
+    const targetHubs = hubsResponse.data.filter((hub) =>
+      authorizedHub.some((authHub) => authHub.id === hub.id)
+    );
+
+    if (targetHubs.length === 0) {
+      return res.status(404).json({
+        data: null,
+        error: "HubNotFound",
+        message: "No authorized hubs found",
+      });
     }
 
-    try{
-        const { data: hubsdata } = await axios.get(
-              "https://developer.api.autodesk.com/project/v1/hubs",
-              {
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                },
-              }
-            );
-        
-            const targetHubs = hubsdata.data.filter((hub) =>
-              authorizedHub.some((authHub) => authHub.id === hub.id)
-            );
-        
-            if (!targetHubs.length) {
-              return res.status(404).json({
-                data: null,
-                error: "Hub not found",
-                message: "Not auuthorized hub found",
-              });
-            }
-        
-            const projects = targetHubs.map((hub) => {
-              return axios
-                .get(
-                  `https://developer.api.autodesk.com/project/v1/hubs/${hub.id}/projects`,
-                  {
-                    headers: {
-                      Authorization: `Bearer ${token}`,
-                    },
-                  }
-                )
-                .then((response) => response.data.data)
-                .catch((error) => {
-                  console.error(
-                    `Error fetching projects for hub ${hub.id}:`,
-                    error.message || error
-                  );
-                  return [];
-                });
-            });
-        
-            const projectsList = await Promise.all(projects);
-        
-            const allProjects = projectsList.flat();
-        
-            //console.log ('All Projects',allProjects)
-        
-            const accProjects = allProjects.filter(
-              (project) =>
-                project.attributes &&
-                project.attributes.extension &&
-                project.attributes.extension.data &&
-                project.attributes.extension.data.projectType === "BIM360"
-            );
-        
-            res.status(200).json({
-              data: {
-                projects: accProjects,
-              },
-              error: null,
-              message: "Access to BIM360 proyects",
-            });
+    // Parallel fetch of projects per hub
+    const projectPromises = targetHubs.map((hub) =>
+      axios
+        .get(
+          `https://developer.api.autodesk.com/project/v1/hubs/${hub.id}/projects`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        )
+        .then((resp) => resp.data.data)
+        .catch((err) => {
+          console.error(
+            `Error fetching projects for hub ${hub.id}:`,
+            err.message
+          );
+          return [];
+        })
+    );
 
+    const projectsList = await Promise.all(projectPromises);
+    const allProjects = projectsList.flat();
 
-    }catch (error) {
-        console.error("Error fetching project:", error.message || error);
-        return res.status(500).json({
-            data: null,
-            error: "Internal Server Error",
-            message: "Error fetching project",
-        });
-    }
+    // Filter BIM360 projects
+    const bim360Projects = allProjects.filter(
+      (project) => project.attributes?.extension?.data?.projectType === "BIM360"
+    );
 
-}
+    return res.status(200).json({
+      data: { projects: bim360Projects },
+      error: null,
+      message: "Access to BIM360 projects granted",
+    });
+  } catch (err) {
+    console.error("Error fetching BIM360 projects:", err.message);
+    return res.status(500).json({
+      data: null,
+      error: "InternalServerError",
+      message: "Failed to retrieve BIM360 projects",
+    });
+  }
+};
 
-module.exports = {
-    GetProjects,
-}
+module.exports = { GetProjects };
