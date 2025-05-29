@@ -65,7 +65,7 @@ const readLimiter = rateLimit({
   message: { status: 429, error: 'Too many requests, please wait.' },
 });
 
-const allowedOrigin = [process.env.FRONTEND_URL, 'http://localhost:5173'];
+const allowedOrigin = [process.env.FRONTEND_URL, 'http://localhost:5173','https://auth.autodesk.com', 'https://developer.api.autodesk.com'];
 
 // Body parsers
 app.use(express.json({ limit: '250mb' }));
