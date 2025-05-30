@@ -20,7 +20,7 @@ const GetThreeLeggedAuth = async (req, res) => {
     const token = await GetAPSThreeLeggedToken(code);
 
     res.cookie('access_token', token, {
-      //domain: '.156041440121.cloud.bayer.com',
+      domain: '.156041440121.cloud.bayer.com',
       maxAge: 360_000_000, // ~100 hours
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
