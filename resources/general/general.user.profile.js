@@ -26,7 +26,7 @@ const GetUserProfile = async (req, res) => {
       { headers: { Authorization: `Bearer ${token}` } }
     );
 
-    console.log('User profile retrieved:', data);
+    //console.log('User profile retrieved:', data);
 
     return res.status(200).json({
       data: data,
