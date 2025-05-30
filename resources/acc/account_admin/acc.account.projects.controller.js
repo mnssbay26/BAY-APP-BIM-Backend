@@ -9,13 +9,13 @@ const { authorizedHub } = require("../../../const/hubs.const");
 const GetProjects = async (req, res) => {
   const token = req.cookies["access_token"];
 
+  console.log("Received token:", token);
+
   if (!token) {
-    return res.status(401).json({
-      data: null,
-      error: "Unauthorized",
-      message: "Access token is missing",
-    });
-  }
+  return res
+    .status(401)
+    .json({ data: null, error: 'Unauthorized', message: 'No token' });
+}
 
   try {
     const { data: hubsResponse } = await axios.get(

@@ -19,18 +19,28 @@ const GetThreeLeggedAuth = async (req, res) => {
   try {
     const token = await GetAPSThreeLeggedToken(code);
 
-    res.cookie('access_token', token, {
-      domain: '.156041440121.cloud.bayer.com',
-      maxAge: 360_000_000, // ~100 hours
+     // Opciones base
+    const cookieOptions = {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'None',
+      maxAge: 360_000_000,       // ~100 horas
       path: '/',
-    });
+    };
 
-    console.debug('Three-legged token acquired');
+    if (process.env.NODE_ENV === 'production') {
+      // Prod: HTTPS obligatorio + cookie para todo el dominio
+      cookieOptions.secure   = true;
+      cookieOptions.sameSite = 'None';
+      cookieOptions.domain   = '.156041440121.cloud.bayer.com';
+    } else {
+      // Dev: HTTP + cookie enviada en XHR same-site
+      cookieOptions.secure   = false;
+      cookieOptions.sameSite = 'Lax';
+      // NO pongas domain aquí en dev
+    }
+
+    res.cookie('access_token', token, cookieOptions);
     return res.redirect(`${FRONTEND_URL}/platform`);
-  } catch (err) {
+  }catch (err) {
     console.error('Error fetching three-legged token:', err);
     return res.redirect(`${FRONTEND_URL}/platform`);
   }

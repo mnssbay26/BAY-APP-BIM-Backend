@@ -11,12 +11,10 @@ const GetUserProfile = async (req, res) => {
   const token = req.cookies['access_token'];
 
   if (!token) {
-    return res.status(401).json({
-      data: null,
-      error: 'Unauthorized',
-      message: 'Access token is missing',
-    });
-  }
+  return res
+    .status(401)
+    .json({ data: null, error: 'Unauthorized', message: 'No token' });
+}
 
   //console.log('token:', token);
 
