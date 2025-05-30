@@ -121,6 +121,7 @@ app.use("/auth", authLimiter, require("./resources/auth/auth.router.js"));
 app.use("/general", require("./resources/general/general.router.js"));
 app.use("/acc", require("./resources/acc/acc.router.js"));
 app.use("/bim360", require("./resources/bim360/bim360.router.js"));
+app.use("/datamanagement", require("./resources/data_management/data.management.router.js"));
 
 // Health check endpoint
 app.get("/", readLimiter, (req, res) => {

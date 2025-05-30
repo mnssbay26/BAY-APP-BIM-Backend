@@ -12,10 +12,10 @@ const GetProjects = async (req, res) => {
   console.log("Received token:", token);
 
   if (!token) {
-  return res
-    .status(401)
-    .json({ data: null, error: 'Unauthorized', message: 'No token' });
-}
+    return res
+      .status(401)
+      .json({ data: null, error: "Unauthorized", message: "No token" });
+  }
 
   try {
     const { data: hubsResponse } = await axios.get(

@@ -1,10 +1,13 @@
-const { GetAPSThreeLeggedToken, GetAPSToken } = require('../../utils/auth/auth.utils');
+const {
+  GetAPSThreeLeggedToken,
+  GetAPSToken,
+} = require("../../utils/auth/auth.utils");
 
 /**
  * Base URL for frontend redirect after authentication.
  * @constant {string}
  */
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
 
 /**
  * OAuth callback for Autodesk Three-Legged Authentication.
@@ -19,29 +22,29 @@ const GetThreeLeggedAuth = async (req, res) => {
   try {
     const token = await GetAPSThreeLeggedToken(code);
 
-     // Opciones base
+    // Opciones base
     const cookieOptions = {
       httpOnly: true,
-      maxAge: 360_000_000,       // ~100 horas
-      path: '/',
+      maxAge: 360_000_000, // ~100 horas
+      path: "/",
     };
 
-    if (process.env.NODE_ENV === 'production') {
+    if (process.env.NODE_ENV === "production") {
       // Prod: HTTPS obligatorio + cookie para todo el dominio
-      cookieOptions.secure   = true;
-      cookieOptions.sameSite = 'None';
-      cookieOptions.domain   = '.156041440121.cloud.bayer.com';
+      cookieOptions.secure = true;
+      cookieOptions.sameSite = "None";
+      cookieOptions.domain = ".156041440121.cloud.bayer.com";
     } else {
       // Dev: HTTP + cookie enviada en XHR same-site
-      cookieOptions.secure   = false;
-      cookieOptions.sameSite = 'Lax';
+      cookieOptions.secure = false;
+      cookieOptions.sameSite = "Lax";
       // NO pongas domain aquí en dev
     }
 
-    res.cookie('access_token', token, cookieOptions);
+    res.cookie("access_token", token, cookieOptions);
     return res.redirect(`${FRONTEND_URL}/platform`);
-  }catch (err) {
-    console.error('Error fetching three-legged token:', err);
+  } catch (err) {
+    console.error("Error fetching three-legged token:", err);
     return res.redirect(`${FRONTEND_URL}/platform`);
   }
 };
@@ -58,14 +61,14 @@ const GetTokenAuth = async (req, res) => {
     return res.status(200).json({
       data: { access_token: token },
       error: null,
-      message: 'Two-legged token generated successfully',
+      message: "Two-legged token generated successfully",
     });
   } catch (err) {
-    console.error('Error generating two-legged token:', err);
+    console.error("Error generating two-legged token:", err);
     return res.status(500).json({
       data: null,
       error: err.message,
-      message: 'Failed to generate token',
+      message: "Failed to generate token",
     });
   }
 };

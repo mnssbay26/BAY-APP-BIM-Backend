@@ -1,5 +1,5 @@
-const express = require('express');
-const { GetThreeLeggedAuth, GetTokenAuth } = require('./auth.controller');
+const express = require("express");
+const { GetThreeLeggedAuth, GetTokenAuth } = require("./auth.controller");
 
 /**
  * Router for Autodesk authentication endpoints.
@@ -14,7 +14,7 @@ const router = express.Router();
  * @route GET /auth/three-legged
  * @returns {Redirect} 302 - Redirects to the frontend platform page
  */
-router.get('/three-legged', GetThreeLeggedAuth);
+router.get("/three-legged", GetThreeLeggedAuth);
 
 /**
  * Provides a two-legged token for server-to-server interactions.
@@ -23,6 +23,6 @@ router.get('/three-legged', GetThreeLeggedAuth);
  * @returns {object} 200 - JSON containing the access_token
  * @returns {object} 500 - JSON with error message on failure
  */
-router.get('/token', GetTokenAuth);
+router.get("/token", GetTokenAuth);
 
 module.exports = router;

@@ -1,8 +1,8 @@
 module.exports = {
-    authorizedHub : [
-        {
-            id: "b.332df681-48af-4f7b-a564-489192d4ede3",
-            name: "BAYER"
-        }
-    ]
-}
+  authorizedHub: [
+    {
+      id: "b.332df681-48af-4f7b-a564-489192d4ede3",
+      name: "BAYER",
+    },
+  ],
+};

@@ -1,5 +1,5 @@
-const express = require('express');
-const { GetUserProfile } = require('./general.user.profile');
+const express = require("express");
+const { GetUserProfile } = require("./general.user.profile");
 
 /**
  * Router for user profile endpoint.
@@ -17,6 +17,6 @@ const router = express.Router();
  * @returns {Error}  404 - No user profile found
  * @returns {Error}  500 - Internal server error
  */
-router.get('/user/profile', GetUserProfile);
+router.get("/user/profile", GetUserProfile);
 
 module.exports = router;
