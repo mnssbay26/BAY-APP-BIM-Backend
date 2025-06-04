@@ -12,22 +12,20 @@ const GetProjectUsers = async (req, res) => {
       .json({ data: null, error: "Unauthorized", message: "No token" });
   }
 
-  try {
+  //console.log("token:", token);
+  //console.log("accountId:", accountId);
+  //console.log("projectId:", projectId);
+
+   try {
     let allProjectUsers = [];
-    let nextPageUrl = `https://developer.api.autodesk.com/project/v1/hubs/${accountId}/projects/${projectId}/users`;
+    let nextUrl = `	https://developer.api.autodesk.com/construction/admin/v1/projects/${projectId}/users?limit=20&offset=0`;
 
-    while (nextPageUrl) {
-      const { data: users } = await axios.get(nextPageUrl, {
-        headers: { Authorization: `Bearer ${token}` },
+    while (nextUrl) {
+      const { data: users } = await axios.get(nextUrl, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
-
-      if (!users || !users.data) {
-        return res.status(404).json({
-          data: null,
-          error: "UsersNotFound",
-          message: "No users found for this project or no data available",
-        });
-      }
 
       const usersWithProjectId = users.results.map((user) => ({
         ...user,
@@ -35,11 +33,11 @@ const GetProjectUsers = async (req, res) => {
       }));
 
       allProjectUsers = allProjectUsers.concat(usersWithProjectId);
-      nextPageUrl = users.pagination.nextUrl;
+      nextUrl = users.pagination.nextUrl;
     }
 
     return res.status(200).json({
-      data: allProjectUsers,
+      data: { users: allProjectUsers },
       error: null,
       message: "Project users retrieved successfully",
     });

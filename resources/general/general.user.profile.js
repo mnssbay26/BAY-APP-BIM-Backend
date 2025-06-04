@@ -27,7 +27,7 @@ const GetUserProfile = async (req, res) => {
     //console.log('User profile retrieved:', data);
 
     return res.status(200).json({
-      data: data,
+      data: {user: data},
       error: null,
       message: "User profile retrieved successfully",
     });

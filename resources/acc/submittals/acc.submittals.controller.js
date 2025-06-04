@@ -40,6 +40,10 @@ const GetSubmittals = async (req, res) => {
       .json({ data: null, error: "Unauthorized", message: "No token" });
   }
 
+  //console.log("token:", token);
+  //console.log("accountId:", accountId);
+  //console.log("projectId:", projectId);
+
   try {
     const submittals = await fetchAllPaginatedResults(
       `https://developer.api.autodesk.com/construction/submittals/v2/projects/${projectId}/items`,

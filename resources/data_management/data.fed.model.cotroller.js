@@ -1,8 +1,8 @@
 const axios = require("axios");
 
 const {
-  GetFolderContent,
-} = require("../../utils/account_admin/folder.content.utils");
+  GetFederatedModelFromFolders,
+} = require("../../utils/account_admin/fed.model.folders.utils");
 
 const match_words = ["FED", "FEDERATED", "FEDERADO"];
 
@@ -19,11 +19,16 @@ const GetFederatedModel = async (req, res) => {
   const accountId = req.params.accountId;
   let projectId = req.params.projectId;
 
+  console.log("accountId:", accountId);
+  console.log("projectId:", projectId);
+
   if (!token) {
     return res
       .status(401)
       .json({ data: null, error: "Unauthorized", message: "No token" });
   }
+
+
 
   try {
     const { data: topFolders } = await axios.get(
@@ -49,10 +54,28 @@ const GetFederatedModel = async (req, res) => {
       ? projectFolder.id
       : topFolders.data[0].id;
 
+      console.log("Root folder ID:", rootFolderId);
+
+      const { data: bimfolder } = await axios.get(
+        `https://developer.api.autodesk.com/data/v1/projects/${projectId}/folders/${rootFolderId}/contents`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      const bim360FolderData = bimfolder.data.find(
+        (f) =>
+          f.attributes.displayName === "Y_BIM"
+      );
+
+      console.log("BIM360 folder data:", bim360FolderData);
+
+      const rootBimId = bim360FolderData
+      ? bim360FolderData.id
+      : bimfolder.data[0].id;
+
     const federatedModelFile = await GetFederatedModelFromFolders({
       token,
       projectId,
-      folderId: rootFolderId,
+      folderId: rootBimId,
       filterFn: (item) => matchesFederated(item.attributes?.displayName),
     });
 
@@ -65,12 +88,14 @@ const GetFederatedModel = async (req, res) => {
       });
     }
 
+    console.log ("Federated model", federatedModelFile);
+
     const { data: fileversions } = await axios.get(
       `https://developer.api.autodesk.com/data/v1/projects/${projectId}/items/${federatedModelFile.id}/versions`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
 
-    if (!versions.data?.length) {
+    if (!fileversions.data?.length) {
       return res.status(404).json({
         data: null,
         error: "No versions found",
@@ -78,12 +103,14 @@ const GetFederatedModel = async (req, res) => {
       });
     }
 
+    console.log ("File versions:", fileversions);
+
     const latestFileVersion = fileversions.data[0];
 
     return res.status(200).json({
       data: {
         federatedmodel: latestFileVersion.id,
-        displayName: foundFile.attributes.displayName,
+        displayName: federatedModelFile.attributes.displayName,
       },
       error: null,
       message: "Federated model retrieved successfully",

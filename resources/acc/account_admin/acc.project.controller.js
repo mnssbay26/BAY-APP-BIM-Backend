@@ -12,6 +12,10 @@ const GetProject = async (req, res) => {
       .status(401)
       .json({ data: null, error: "Unauthorized", message: "No token" });
   }
+ 
+  //console.log("token:", token);
+  //console.log("accountId:", accountId);
+  //console.log("projectId:", projectId);
 
   try {
     const { data: projectdata } = await axios.get(

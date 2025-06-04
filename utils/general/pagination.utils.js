@@ -22,26 +22,22 @@ const fetchAllPaginatedResults = async (initialUrl, token, pageSize = 100) => {
     url.searchParams.set("offset", offset);
 
     const { data } = await axios.get(url.toString(), {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
+      headers: { Authorization: `Bearer ${token}` },
     });
 
-    if (!data || !data.data) {
-      throw new Error("No data found or invalid response structure");
-    }
-
-    if (Array.isArray(data.data)) {
-      results.push(...data.data);
+    if (Array.isArray(data.results)) {
+      results.push(...data.results);
     } else {
-      break;
+      break;  
     }
 
     totalResults = data.pagination.totalResults;
-    offset += data.pagination.limit;
+    offset += data.pagination.limit;  
   }
+
+  //console.log("results", results);
   return results;
 };
 
 module.exports = { fetchAllPaginatedResults };
+

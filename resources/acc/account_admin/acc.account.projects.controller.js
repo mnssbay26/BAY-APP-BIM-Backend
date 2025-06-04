@@ -9,7 +9,7 @@ const { authorizedHub } = require("../../../const/hubs.const");
 const GetProjects = async (req, res) => {
   const token = req.cookies["access_token"];
 
-  console.log("Received token:", token);
+  //console.log("Received token:", token);
 
   if (!token) {
     return res

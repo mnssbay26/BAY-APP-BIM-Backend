@@ -68,7 +68,9 @@ const GetRfis = async (req, res) => {
     });
 
     return res.status(200).json({
-      data: { rfis: rfisdatawithnames },
+      data: { 
+        rfis: rfisdatawithnames 
+      },
       error: null,
       message: "RFIs retrieved successfully",
     });

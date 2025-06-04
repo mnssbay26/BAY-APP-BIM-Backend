@@ -12,9 +12,7 @@ const { format } = require("morgan");
 */
 
 const GetIssueAttributeDefinitions = async (projectId, token) => {
-  const url =
-    `https://developer.api.autodesk.com/construction/issues/v1/projects/${projectId}/issue-attribute-definitions` ||
-    `https://developer.api.autodesk.com/issues/v2/containers/${projectId}/issue-attribute-definitions`;
+  const url = `https://developer.api.autodesk.com/construction/issues/v1/projects/${projectId}/issue-attribute-definitions`;
 
   const headers = {
     Authorization: `Bearer ${token}`,
@@ -23,19 +21,38 @@ const GetIssueAttributeDefinitions = async (projectId, token) => {
 
   try {
     const { data } = await axios.get(url, { headers });
-    if (!data || !data.data) {
-      throw new Error(
-        "Issue attribute definitions not found or no data available"
-      );
-    }
+
+    //console.log ('Issue Attribute Definitions:', data.results[0]);
     return data;
   } catch (error) {
-    console.error("Error fetching issue attribute definitions:", error.message);
-    if (error.response) {
-      console.error("Autodesk response:", error.response.data);
-    }
-    throw new Error("Failed to retrieve issue attribute definitions");
+    console.error(
+      "Error fetching Issue Attributes definition:",
+      error.response?.data || error.message
+    );
+    throw error;
   }
 };
 
-module.exports = { GetIssueAttributeDefinitions };
+const GetIssueBim360AttributeDefinitions = async (projectId, token) => {
+  const url = `https://developer.api.autodesk.com/issues/v2/containers/${projectId}/issue-attribute-definitions`;
+
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "application/json",
+  };
+
+  try {
+    const { data } = await axios.get(url, { headers });
+
+    //console.log ('Issue Attribute Definitions:', data.results[0]);
+    return data;
+  } catch (error) {
+    console.error(
+      "Error fetching Issue Attributes definition:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+}
+
+module.exports = { GetIssueAttributeDefinitions, GetIssueBim360AttributeDefinitions };

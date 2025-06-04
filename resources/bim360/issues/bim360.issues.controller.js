@@ -1,9 +1,9 @@
 const { default: axios } = require("axios");
 const { format } = require("morgan");
 
-const { GetIssuesTypeName } = require("../../../utils/issues/issue.type.name");
+const { GetIssuesBim360TypeName } = require("../../../utils/issues/issue.type.name");
 const {
-  GetIssueAttributeDefinitions,
+   GetIssueBim360AttributeDefinitions,
 } = require("../../../utils/issues/issue.attribute.definition");
 
 const {
@@ -49,54 +49,56 @@ const GetIssues = async (req, res) => {
     );
 
     if (!Array.isArray(issues) || issues.length === 0) {
-      return res.status(200).json({
-        data: { issues: [] },
-        error: null,
-        message: "No Issues found for this project",
-      });
-    }
+          return res.status(200).json({
+            data: { issues: [] },
+            error: null,
+            message: "No Issues found for this project",
+          });
+        }
+    
+        const issuesTypeNameData = await GetIssuesBim360TypeName(projectId, token);
+    
+        const issueTypeMap = issuesTypeNameData.results.reduce((acc, type) => {
+          acc[type.id] = type.title;
+          return acc;
+        }, {});
+    
+        const userMap = await mapUserIdsToNames(
+          issues,
+          projectId,
+          token,
+          userFields
+        );
+    
+        const issuesWithUserNames = issues.map((issue) => ({
+          ...issue,
+          issueTypeName: issueTypeMap[issue.issueTypeId] || "Unknown Type",
+          createdBy: userMap[issue.createdBy] || "Unknown User",
+          assignedTo: userMap[issue.assignedTo] || "Unknown User",
+          closedBy: userMap[issue.closedBy] || "Unknown User",
+          openedBy: userMap[issue.openedBy] || "Unknown User",
+          updatedBy: userMap[issue.updatedBy] || "Unknown User",
+          ownerId: userMap[issue.ownerId] || "Unknown User",
+        }));
 
-    const issuesTypeNameData = await GetIssuesTypeName(projectId, token);
-
-    const issueTypeMap = issuesTypeNameData.results.reduce((acc, type) => {
-      acc[type.id] = type.title;
-      return acc;
-    }, {});
-
-    const userMap = await mapUserIdsToNames(
-      issues,
-      projectId,
-      token,
-      userFields
-    );
-
-    const issuesWithUserNames = issues.map((issue) => ({
-      ...issue,
-      issueTypeName: issueTypeMap[issue.issueTypeId] || "Unknown Type",
-      createdBy: userMap[issue.createdBy] || "Unknown User",
-      assignedTo: userMap[issue.assignedTo] || "Unknown User",
-      closedBy: userMap[issue.closedBy] || "Unknown User",
-      openedBy: userMap[issue.openedBy] || "Unknown User",
-      updatedBy: userMap[issue.updatedBy] || "Unknown User",
-      ownerId: userMap[issue.ownerId] || "Unknown User",
-    }));
-
-    const attrDef = await GetIssueAttributeDefinitions(projectId, token);
-
-    const attributeValueMap = buildCustomAttributeValueMap(attrDef.results);
-
-    const issuesWithReadableAttributes = enrichCustomAttributes(
-      issuesWithUserNames,
-      attributeValueMap
-    );
-
-    res.status(200).json({
-      data: {
-        issues: issuesWithReadableAttributes,
-      },
-      error: null,
-      message: "Issues retrieved successfully",
-    });
+        //console.log("issuesWithUserNames:", issuesWithUserNames);
+    
+        const attrDef = await  GetIssueBim360AttributeDefinitions(projectId, token);
+    
+        const attributeValueMap = buildCustomAttributeValueMap(attrDef.results);
+    
+        const issuesWithReadableAttributes = enrichCustomAttributes(
+          issuesWithUserNames,
+          attributeValueMap
+        );
+    
+        res.status(200).json({
+          data: {
+            issues: issuesWithReadableAttributes
+          },
+          error: null,
+          message: "Issues retrieved successfully",
+        });
   } catch (err) {
     console.error("Error fetching issues:", err.message);
     if (err.response) {

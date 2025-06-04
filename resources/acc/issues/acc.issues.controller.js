@@ -42,6 +42,10 @@ const GetIssues = async (req, res) => {
       .json({ data: null, error: "Unauthorized", message: "No token" });
   }
 
+  //console.log("token:", token);
+  //console.log("accountId:", accountId);
+  //console.log("projectId:", projectId);
+
   try {
     const issues = await fetchAllPaginatedResults(
       `https://developer.api.autodesk.com/construction/issues/v1/projects/${projectId}/issues`,
@@ -91,7 +95,9 @@ const GetIssues = async (req, res) => {
     );
 
     res.status(200).json({
-      data: issuesWithReadableAttributes,
+      data: {
+        issues: issuesWithReadableAttributes
+      },
       error: null,
       message: "Issues retrieved successfully",
     });

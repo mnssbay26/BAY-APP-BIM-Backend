@@ -30,10 +30,14 @@ const GetRfis = async (req, res) => {
       .status(401)
       .json({ data: null, error: "Unauthorized", message: "No token" });
   }
+  
+  //console.log("token:", token);
+  //console.log("accountId:", accountId);
+  //console.log("projectId:", projectId);
 
   try {
     const rfis = await fetchAllPaginatedResults(
-      `https://developer.api.autodesk.com/construction/rfis/v1/projects/${projectId}/rfis`,
+      `https://developer.api.autodesk.com/bim360/rfis/v2/containers/${projectId}/rfis`,
       token
     );
 
@@ -67,8 +71,12 @@ const GetRfis = async (req, res) => {
       };
     });
 
+    //console.log("RFIS", rfisdatawithnames);
+
     return res.status(200).json({
-      data: { rfis: rfisdatawithnames },
+      data: { 
+        rfis: rfisdatawithnames
+      },
       error: null,
       message: "RFIs retrieved successfully",
     });
