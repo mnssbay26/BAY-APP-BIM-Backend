@@ -1,7 +1,6 @@
 const express = require("express");
 const axios = require("axios");
 const router = express.Router();
-const { format } = require("morgan");
 
 const GetUserbyuserId = async (userId, projectId, token) => {
   const url = `https://developer.api.autodesk.com/construction/admin/v1/projects/${projectId}/users/${userId}`;

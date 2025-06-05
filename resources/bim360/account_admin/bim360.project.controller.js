@@ -1,5 +1,5 @@
 const { default: axios } = require("axios");
-const { format } = require("morgan");
+
 const { authorizedHub } = require("../../../const/hubs.const");
 
 const GetProject = async (req, res) => {

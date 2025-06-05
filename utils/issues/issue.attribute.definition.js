@@ -1,7 +1,6 @@
 const express = require("express");
 const axios = require("axios");
 const router = express.Router();
-const { format } = require("morgan");
 
 /*
      GetIssueAttributeDefinition retrieves issue attribute definitions for a project.
