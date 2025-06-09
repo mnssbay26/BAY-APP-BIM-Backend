@@ -5,6 +5,8 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const dotenv = require("dotenv");
 
+const {dbConnection} = require ('./services/dynamo/dynamo.service.js');
+
 dotenv.config();
 
 const PORT = process.env.PORT || 3000;
@@ -127,6 +129,8 @@ app.use("/datamanagement", require("./resources/data_management/data.management.
 app.get("/", readLimiter, (req, res) => {
   res.json({ message: "BAY Backend API alive 🚀" });
 });
+
+dbConnection()
 
 // Start server when run directly
 if (require.main === module) {

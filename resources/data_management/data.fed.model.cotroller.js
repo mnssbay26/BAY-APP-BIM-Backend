@@ -19,9 +19,6 @@ const GetFederatedModel = async (req, res) => {
   const accountId = req.params.accountId;
   let projectId = req.params.projectId;
 
-  console.log("accountId:", accountId);
-  console.log("projectId:", projectId);
-
   if (!token) {
     return res
       .status(401)
@@ -54,7 +51,7 @@ const GetFederatedModel = async (req, res) => {
       ? projectFolder.id
       : topFolders.data[0].id;
 
-      console.log("Root folder ID:", rootFolderId);
+      //console.log("Root folder ID:", rootFolderId);
 
       const { data: bimfolder } = await axios.get(
         `https://developer.api.autodesk.com/data/v1/projects/${projectId}/folders/${rootFolderId}/contents`,
@@ -66,7 +63,7 @@ const GetFederatedModel = async (req, res) => {
           f.attributes.displayName === "Y_BIM"
       );
 
-      console.log("BIM360 folder data:", bim360FolderData);
+      //console.log("BIM360 folder data:", bim360FolderData);
 
       const rootBimId = bim360FolderData
       ? bim360FolderData.id
@@ -88,7 +85,7 @@ const GetFederatedModel = async (req, res) => {
       });
     }
 
-    console.log ("Federated model", federatedModelFile);
+    //console.log ("Federated model", federatedModelFile);
 
     const { data: fileversions } = await axios.get(
       `https://developer.api.autodesk.com/data/v1/projects/${projectId}/items/${federatedModelFile.id}/versions`,
@@ -103,7 +100,7 @@ const GetFederatedModel = async (req, res) => {
       });
     }
 
-    console.log ("File versions:", fileversions);
+    //console.log ("File versions:", fileversions);
 
     const latestFileVersion = fileversions.data[0];
 

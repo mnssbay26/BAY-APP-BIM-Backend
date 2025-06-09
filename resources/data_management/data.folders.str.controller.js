@@ -7,7 +7,7 @@ const {
   GetFileVersions,
 } = require("../../utils/account_admin/file.version.utils");
 
-const GetFodlerStructure = async (req, res) => {
+const GetFolderStructure = async (req, res) => {
   const token = req.cookies["access_token"];
   const accountId = req.params.accountId;
   let projectId = req.params.projectId;
@@ -85,4 +85,4 @@ const GetFodlerStructure = async (req, res) => {
   }
 };
 
-module.exports = { GetFodlerStructure };
+module.exports = { GetFolderStructure };

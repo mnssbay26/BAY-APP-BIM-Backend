@@ -24,6 +24,14 @@ const userFields = [
   "sentToReviewBy",
 ];
 
+const {
+  saveItem,
+  deleteItem,
+  queryService,
+} = require("../../../services/dynamo/dynamo.service");
+const { mapSubmittalToItem } = require("../../../services/schemas/submittals.schema");
+
+
 const GetSubmittals = async (req, res) => {
   const token = req.cookies["access_token"];
   const accountId = req.params.accountId;
@@ -38,10 +46,6 @@ const GetSubmittals = async (req, res) => {
       .status(401)
       .json({ data: null, error: "Unauthorized", message: "No token" });
   }
-
-  //console.log("token:", token);
-  //console.log("accountId:", accountId);
-  //console.log("projectId:", projectId);
 
   try {
     const submittals = await fetchAllPaginatedResults(
@@ -101,6 +105,27 @@ const GetSubmittals = async (req, res) => {
         }
 
         return submittal;
+      })
+    );
+
+    //console.log("Submittals", submittalsWithUserDetails);
+
+    const existingItems = await queryService(accountId, projectId, "submittals");
+    const idsExisting = existingItems.map((item) => item.id);
+
+    const newIds = submittalsWithUserDetails.map((submittal) => submittal.id);
+
+    const idsToDelete = idsExisting.filter((id) => !newIds.includes(id));
+    await Promise.all(
+      idsToDelete.map((id) =>
+        deleteItem(`${accountId}#${projectId}`, `submittals#${id}`)
+      )
+    );
+
+    await Promise.all(
+      submittalsWithUserDetails.map((submittal) => {
+        const item = mapSubmittalToItem(submittal, accountId, projectId);
+        return saveItem(item);
       })
     );
 

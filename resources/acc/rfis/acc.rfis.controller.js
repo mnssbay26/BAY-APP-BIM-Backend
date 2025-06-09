@@ -15,6 +15,13 @@ const userFields = [
   "updatedBy",
 ];
 
+const {
+  saveItem,
+  deleteItem,
+  queryService,
+} = require("../../../services/dynamo/dynamo.service");
+const { mapRfiToItem } = require("../../../services/schemas/rfis.shema");
+
 const GetRfis = async (req, res) => {
   const token = req.cookies["access_token"];
   const accountId = req.params.accountId;
@@ -29,10 +36,6 @@ const GetRfis = async (req, res) => {
       .status(401)
       .json({ data: null, error: "Unauthorized", message: "No token" });
   }
-  
-  //console.log("token:", token);
-  //console.log("accountId:", accountId);
-  //console.log("projectId:", projectId);
 
   try {
     const rfis = await fetchAllPaginatedResults(
@@ -72,9 +75,28 @@ const GetRfis = async (req, res) => {
 
     //console.log("RFIS", rfisdatawithnames);
 
+    const existingItems = await queryService(accountId, projectId, "rfis");
+    const idsExisting = existingItems.map((item) => item.rfiId);
+
+    const newIds = rfisdatawithnames.map((rfi) => rfi.id);
+
+    const idsToDelete = idsExisting.filter((id) => !newIds.includes(id));
+    await Promise.all(
+      idsToDelete.map((id) =>
+        deleteItem(`${accountId}#${projectId}`, `rfis#${id}`)
+      )
+    );
+
+    await Promise.all(
+      rfisdatawithnames.map((rfi) => {
+        const item = mapRfiToItem(rfi, accountId, projectId);
+        return saveItem(item);
+      })
+    );
+
     return res.status(200).json({
-      data: { 
-        rfis: rfisdatawithnames
+      data: {
+        rfis: rfisdatawithnames,
       },
       error: null,
       message: "RFIs retrieved successfully",

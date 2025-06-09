@@ -26,6 +26,13 @@ const userFields = [
   "ownerId",
 ];
 
+const {
+  saveItem,
+  deleteItem,
+  queryService,
+} = require("../../../services/dynamo/dynamo.service");
+const { mapIssueToItem } = require("../../../services/schemas/issues.schema");
+
 const GetIssues = async (req, res) => {
   const token = req.cookies["access_token"];
   const accountId = req.params.accountId;
@@ -40,10 +47,6 @@ const GetIssues = async (req, res) => {
       .status(401)
       .json({ data: null, error: "Unauthorized", message: "No token" });
   }
-
-  //console.log("token:", token);
-  //console.log("accountId:", accountId);
-  //console.log("projectId:", projectId);
 
   try {
     const issues = await fetchAllPaginatedResults(
@@ -93,9 +96,34 @@ const GetIssues = async (req, res) => {
       attributeValueMap
     );
 
+    //console.log("Issues", issuesWithReadableAttributes);
+
+    //Get existing items from DynamoDB
+    const existingItems = await queryService(accountId, projectId, "issues");
+    const idsExisting = existingItems.map((it) => it.id);
+
+    //Get new Ids to insert
+    const newIds = issuesWithReadableAttributes.map((i) => i.id);
+
+    //Delete old items
+    const idsToDelete = idsExisting.filter((id) => !newIds.includes(id));
+    await Promise.all(
+      idsToDelete.map((id) =>
+        deleteItem(`${accountId}#${projectId}`, `issues#${id}`)
+      )
+    );
+
+    //Upsert new items
+    await Promise.all(
+      issuesWithReadableAttributes.map((issue) => {
+        const item = mapIssueToItem(issue, accountId, projectId);
+        return saveItem(item);
+      })
+    );
+
     res.status(200).json({
       data: {
-        issues: issuesWithReadableAttributes
+        issues: issuesWithReadableAttributes,
       },
       error: null,
       message: "Issues retrieved successfully",

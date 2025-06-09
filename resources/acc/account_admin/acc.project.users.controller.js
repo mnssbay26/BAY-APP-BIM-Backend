@@ -1,5 +1,12 @@
 const { default: axios } = require("axios");
 
+const {
+  saveItem,
+  deleteItem,
+  queryService,
+} = require("../../../services/dynamo/dynamo.service");
+const { mapUsersToIdem  } = require("../../../services/schemas/users.schema");
+
 const GetProjectUsers = async (req, res) => {
   const token = req.cookies["access_token"];
   const accountId = req.params.accountId;
@@ -10,10 +17,6 @@ const GetProjectUsers = async (req, res) => {
       .status(401)
       .json({ data: null, error: "Unauthorized", message: "No token" });
   }
-
-  //console.log("token:", token);
-  //console.log("accountId:", accountId);
-  //console.log("projectId:", projectId);
 
    try {
     let allProjectUsers = [];
@@ -34,6 +37,27 @@ const GetProjectUsers = async (req, res) => {
       allProjectUsers = allProjectUsers.concat(usersWithProjectId);
       nextUrl = users.pagination.nextUrl;
     }
+
+    //console.log("All project users:", allProjectUsers);
+
+    const existingItems = await queryService(accountId, projectId, "users")
+    const idsExisting = existingItems.map((item) => item.userId);
+
+    const newIds = allProjectUsers.map((user) => user.userId);
+
+    const idsToDelete = idsExisting.filter((id) => !newIds.includes(id));
+    await Promise.all(
+      idsToDelete.map((id) =>
+        deleteItem(`${accountId}#${projectId}`, `users#${id}`)
+      )
+    );
+
+    await Promise.all(
+      allProjectUsers.map((user) => {
+        const item = mapUsersToIdem(user, accountId, projectId);
+        return saveItem(item);
+      })
+    );
 
     return res.status(200).json({
       data: { users: allProjectUsers },
