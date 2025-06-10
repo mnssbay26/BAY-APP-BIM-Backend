@@ -25,9 +25,9 @@ const userFields = [
 ];
 
 const {
-  saveItem,
-  deleteItem,
-  queryService,
+  saveDataItem,
+  deleteDataItem,
+  queryDataService,
 } = require("../../../services/dynamo/dynamo.service");
 const { mapSubmittalToItem } = require("../../../services/schemas/submittals.schema");
 
@@ -110,7 +110,7 @@ const GetSubmittals = async (req, res) => {
 
     //console.log("Submittals", submittalsWithUserDetails);
 
-    const existingItems = await queryService(accountId, projectId, "submittals");
+    const existingItems = await queryDataService(accountId, projectId, "submittals");
     const idsExisting = existingItems.map((item) => item.id);
 
     const newIds = submittalsWithUserDetails.map((submittal) => submittal.id);
@@ -118,14 +118,14 @@ const GetSubmittals = async (req, res) => {
     const idsToDelete = idsExisting.filter((id) => !newIds.includes(id));
     await Promise.all(
       idsToDelete.map((id) =>
-        deleteItem(`${accountId}#${projectId}`, `submittals#${id}`)
+        deleteDataItem(`${accountId}#${projectId}`, `submittals#${id}`)
       )
     );
 
     await Promise.all(
       submittalsWithUserDetails.map((submittal) => {
         const item = mapSubmittalToItem(submittal, accountId, projectId);
-        return saveItem(item);
+        return saveDataItem(item);
       })
     );
 

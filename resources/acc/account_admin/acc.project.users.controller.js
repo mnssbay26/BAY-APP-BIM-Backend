@@ -1,9 +1,9 @@
 const { default: axios } = require("axios");
 
 const {
-  saveItem,
-  deleteItem,
-  queryService,
+  saveDataItem,
+  deleteDataItem,
+  queryDataService,
 } = require("../../../services/dynamo/dynamo.service");
 const { mapUsersToIdem  } = require("../../../services/schemas/users.schema");
 
@@ -40,7 +40,7 @@ const GetProjectUsers = async (req, res) => {
 
     //console.log("All project users:", allProjectUsers);
 
-    const existingItems = await queryService(accountId, projectId, "users")
+    const existingItems = await queryDataService(accountId, projectId, "users")
     const idsExisting = existingItems.map((item) => item.userId);
 
     const newIds = allProjectUsers.map((user) => user.userId);
@@ -48,14 +48,14 @@ const GetProjectUsers = async (req, res) => {
     const idsToDelete = idsExisting.filter((id) => !newIds.includes(id));
     await Promise.all(
       idsToDelete.map((id) =>
-        deleteItem(`${accountId}#${projectId}`, `users#${id}`)
+        deleteDataItem(`${accountId}#${projectId}`, `users#${id}`)
       )
     );
 
     await Promise.all(
       allProjectUsers.map((user) => {
         const item = mapUsersToIdem(user, accountId, projectId);
-        return saveItem(item);
+        return saveDataItem(item);
       })
     );
 

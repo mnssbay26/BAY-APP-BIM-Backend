@@ -75,7 +75,7 @@ const writeLimiter = rateLimit({
 });
 const readLimiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute
-  max: 300,
+  max: 600,
   standardHeaders: true,
   legacyHeaders: false,
   message: { status: 429, error: "Too many requests, please wait." },
@@ -124,7 +124,7 @@ app.use("/general", require("./resources/general/general.router.js"));
 app.use("/acc", require("./resources/acc/acc.router.js"));
 app.use("/bim360", require("./resources/bim360/bim360.router.js"));
 app.use("/datamanagement", require("./resources/data_management/data.management.router.js"));
-
+app.use("/modeldata", require("./resources/model_data/model.data.router.js"));
 // Health check endpoint
 app.get("/", readLimiter, (req, res) => {
   res.json({ message: "BAY Backend API alive 🚀" });
