@@ -16,9 +16,9 @@ const userFields = [
 ];
 
 const {
-  saveItem,
-  deleteItem,
-  queryService,
+  saveDataItem,
+  deleteDataItem,
+  queryDataService,
 } = require("../../../services/dynamo/dynamo.service");
 const { mapRfiToItem } = require("../../../services/schemas/rfis.shema");
 
@@ -75,7 +75,7 @@ const GetRfis = async (req, res) => {
 
     //console.log("RFIS", rfisdatawithnames);
 
-    const existingItems = await queryService(accountId, projectId, "rfis");
+    const existingItems = await queryDataService(accountId, projectId, "rfis");
     const idsExisting = existingItems.map((item) => item.rfiId);
 
     const newIds = rfisdatawithnames.map((rfi) => rfi.id);
@@ -83,14 +83,14 @@ const GetRfis = async (req, res) => {
     const idsToDelete = idsExisting.filter((id) => !newIds.includes(id));
     await Promise.all(
       idsToDelete.map((id) =>
-        deleteItem(`${accountId}#${projectId}`, `rfis#${id}`)
+        deleteDataItem(`${accountId}#${projectId}`, `rfis#${id}`)
       )
     );
 
     await Promise.all(
       rfisdatawithnames.map((rfi) => {
         const item = mapRfiToItem(rfi, accountId, projectId);
-        return saveItem(item);
+        return saveDataItem(item);
       })
     );
 

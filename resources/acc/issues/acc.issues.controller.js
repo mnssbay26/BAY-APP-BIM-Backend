@@ -27,9 +27,9 @@ const userFields = [
 ];
 
 const {
-  saveItem,
-  deleteItem,
-  queryService,
+  saveDataItem,
+  deleteDataItem,
+  queryDataService,
 } = require("../../../services/dynamo/dynamo.service");
 const { mapIssueToItem } = require("../../../services/schemas/issues.schema");
 
@@ -99,7 +99,7 @@ const GetIssues = async (req, res) => {
     //console.log("Issues", issuesWithReadableAttributes);
 
     //Get existing items from DynamoDB
-    const existingItems = await queryService(accountId, projectId, "issues");
+    const existingItems = await queryDataService(accountId, projectId, "issues");
     const idsExisting = existingItems.map((it) => it.id);
 
     //Get new Ids to insert
@@ -109,7 +109,7 @@ const GetIssues = async (req, res) => {
     const idsToDelete = idsExisting.filter((id) => !newIds.includes(id));
     await Promise.all(
       idsToDelete.map((id) =>
-        deleteItem(`${accountId}#${projectId}`, `issues#${id}`)
+        deleteDataItem(`${accountId}#${projectId}`, `issues#${id}`)
       )
     );
 
@@ -117,7 +117,7 @@ const GetIssues = async (req, res) => {
     await Promise.all(
       issuesWithReadableAttributes.map((issue) => {
         const item = mapIssueToItem(issue, accountId, projectId);
-        return saveItem(item);
+        return saveDataItem(item);
       })
     );
 
