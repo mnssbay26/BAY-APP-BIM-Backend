@@ -75,7 +75,7 @@ const writeLimiter = rateLimit({
 });
 const readLimiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute
-  max: 600,
+  max: 1200,
   standardHeaders: true,
   legacyHeaders: false,
   message: { status: 429, error: "Too many requests, please wait." },
