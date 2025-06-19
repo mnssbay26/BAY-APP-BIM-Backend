@@ -48,20 +48,43 @@ async function deleteDataItem(pk, sk) {
 
 /** Get query of data items */
 async function queryDataService(accountId, projectId, service) {
-  const pk = `${accountId}#${projectId}`;
-  const resp = await ddbDoc.send(new QueryCommand({
-    TableName: DATATABLE,
-    KeyConditionExpression: "#pk = :pk AND begins_with(#sk, :svc)",
-    ExpressionAttributeNames: {
-      "#pk": PK_ATTR,
-      "#sk": SK_ATTR
-    },
-    ExpressionAttributeValues: {
-      ":pk": pk,
-      ":svc": `${service}#`
-    }
-  }));
-  return resp.Items || [];
+  
+  const safeAccount = accountId.replace(/[.\-]/g, "_");
+
+  const rawProject  = projectId.startsWith("b.") ? projectId.slice(2) : projectId;
+  const safeProject = rawProject.replace(/[.\-]/g, "_");
+
+  const pk        = `${safeAccount}#${safeProject}`;
+  //console.log(`[Dynamo] queryDataService ▶ PK="${pk}"`);
+
+  let svc = service.toLowerCase();
+  if (svc.endsWith("s")) svc = svc.slice(0, -1);
+  const skPrefix = `${svc}#`;
+  //console.log(`[Dynamo] queryDataService ▶ SK prefix="${skPrefix}"`);
+
+  try {
+    const resp = await ddbDoc.send(
+      new QueryCommand({
+        TableName: DATATABLE,
+        KeyConditionExpression: "#pk = :pk AND begins_with(#sk, :svc)",
+        ExpressionAttributeNames: {
+          "#pk": PK_ATTR,
+          "#sk": SK_ATTR,
+        },
+        ExpressionAttributeValues: {
+          ":pk": pk,
+          ":svc": skPrefix,
+        },
+      })
+    );
+    console.log(
+      `[Dynamo] queryDataService ◀ returned ${resp.Items?.length || 0} items`
+    );
+    return resp.Items || [];
+  } catch (err) {
+    console.error("[Dynamo] queryDataService ❌ error:", err);
+    throw err;
+  }
 }
 
 //MODEL TABLE FUNCTIONS

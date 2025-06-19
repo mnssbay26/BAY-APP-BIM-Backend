@@ -1,9 +1,11 @@
 const  express = require ("express");
 
-const { PostAiIssues } = require("./ai/ia.issues.controller");
-const { PostAiRfis } = require("./ai/ia.rfis.controller");
-const { PostAiSubmittals } = require("./ai/ia.submittals.controller");
-const { PostAiUsers } = require("./ai/ia.users.controller");
+const { PostAiIssues } = require("../ia/controllers/ia.issues.controller");
+const { PostAiRfis } = require("../ia/controllers/ai.rfis.controller");
+const { PostAiSubmittals } = require("../ia/controllers/ai.submittals.controller");
+const { PostAiUsers } = require("../ia/controllers/ai.users.controller");
+
+const router = express.Router();
 
 router.post ("/issues", PostAiIssues);
 router.post ("/rfis", PostAiRfis);
