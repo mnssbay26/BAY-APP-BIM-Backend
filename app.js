@@ -4,6 +4,7 @@ const rateLimit = require("express-rate-limit");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const dotenv = require("dotenv");
+const csrf = require("csurf");
 
 const {dbConnection} = require ('./services/dynamo/dynamo.service.js');
 
@@ -13,6 +14,9 @@ const PORT = process.env.PORT || 3000;
 
 //Initialize Express app
 const app = express();
+
+// Security: remove X-Powered-By header
+app.disable("x-powered-by");
 
 app.set("trust proxy", 1);
 
@@ -118,6 +122,14 @@ if (process.env.NODE_ENV === "development") {
 // Cookie parser
 app.use(cookieParser());
 
+// Apply CSRF only to write routes for better security and compatibility
+app.use(["/modeldata", "/datamanagement"], csrf({ cookie: true }));
+
+// Endpoint to expose CSRF token if needed by frontend
+app.get("/csrf-token", (req, res) => {
+  res.json({ csrfToken: req.csrfToken() });
+});
+
 // Routes (consider adding specific rateLimiters per route as needed)
 app.use("/auth", authLimiter, require("./resources/auth/auth.router.js"));
 app.use("/general", require("./resources/general/general.router.js"));
@@ -130,6 +142,14 @@ app.use("/ai", require("./ia/ia.router.js"));
 // Health check endpoint
 app.get("/", readLimiter, (req, res) => {
   res.json({ message: "BAY Backend API alive 🚀" });
+});
+
+// Global error handler (must be after all routes)
+app.use((err, req, res, next) => {
+  console.error(err); // Internal log
+  res.status(err.status || 500).json({
+    error: err.message || "Internal Server Error",
+  });
 });
 
 dbConnection()
