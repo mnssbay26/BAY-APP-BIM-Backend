@@ -5,6 +5,8 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const dotenv = require("dotenv");
 const csrf = require("csurf");
+const sanitizeRequest = require("./middleware/sanitize.middleware");
+const validatePayload = require("./middleware/validate.middleware");
 
 const {dbConnection} = require ('./services/dynamo/dynamo.service.js');
 
@@ -98,6 +100,10 @@ const allowedOrigin = [
 // Body parsers
 app.use(express.json({ limit: "250mb" }));
 app.use(express.urlencoded({ limit: "250mb", extended: true }));
+app.use(sanitizeRequest);
+app.post('*', validatePayload);
+app.patch('*', validatePayload);
+app.put('*', validatePayload);
 
 // CORS configuration
 app.use(
