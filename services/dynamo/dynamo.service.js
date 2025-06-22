@@ -77,9 +77,9 @@ async function queryDataService(accountId, projectId, service) {
         },
       })
     );
-    console.log(
-      `[Dynamo] queryDataService ◀ returned ${resp.Items?.length || 0} items`
-    );
+    // console.log(
+    //   `[Dynamo] queryDataService ◀ returned ${resp.Items?.length || 0} items`
+    // );
     return resp.Items || [];
   } catch (err) {
     console.error("[Dynamo] queryDataService ❌ error:", err);
