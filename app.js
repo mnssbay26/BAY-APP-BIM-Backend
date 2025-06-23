@@ -10,9 +10,11 @@ const validatePayload = require("./middleware/validate.middleware");
 
 const {dbConnection} = require ('./services/dynamo/dynamo.service.js');
 
+const requireAuth = require("./middleware/requireAuth.js");
+
 dotenv.config();
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT;
 
 //Initialize Express app
 const app = express();
@@ -63,7 +65,7 @@ app.use(
 
 // Rate limiters
 const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
+  windowMs: 15 * 60 * 1000, 
   max: 30,
   standardHeaders: true,
   legacyHeaders: false,
@@ -73,14 +75,14 @@ const authLimiter = rateLimit({
   },
 });
 const writeLimiter = rateLimit({
-  windowMs: 1 * 60 * 1000, // 1 minute
+  windowMs: 1 * 60 * 1000, 
   max: 30,
   standardHeaders: true,
   legacyHeaders: false,
   message: { status: 429, error: "Too many write operations, please wait." },
 });
 const readLimiter = rateLimit({
-  windowMs: 1 * 60 * 1000, // 1 minute
+  windowMs: 1 * 60 * 1000,
   max: 1200,
   standardHeaders: true,
   legacyHeaders: false,
@@ -110,7 +112,7 @@ app.use(
   cors({
     origin: allowedOrigin,
     methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Accept", "Authorization"],
+    allowedHeaders: ["Content-Type", "Accept", "Authorization", "CSRF-Token"],
     exposedHeaders: ["Content-Type", "Accept", "Authorization"],
     credentials: true,
     optionsSuccessStatus: 204,
@@ -125,30 +127,35 @@ if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
 
+
 // Cookie parser
 app.use(cookieParser());
 
-// Apply CSRF only to write routes for better security and compatibility
-app.use(["/modeldata", "/datamanagement"], csrf({ cookie: true }));
+// CSRF protection
+const csrfProtection = csrf({ cookie: true });
 
-// Endpoint to expose CSRF token if needed by frontend
-app.get("/csrf-token", (req, res) => {
-  res.json({ csrfToken: req.csrfToken() });
-});
+// Apply CSRF only to write routes for better security and compatibility
+app.use(["/modeldata", "/datamanagement"], csrfProtection);
 
 // Routes (consider adding specific rateLimiters per route as needed)
 app.use("/auth", authLimiter, require("./resources/auth/auth.router.js"));
-app.use("/general", require("./resources/general/general.router.js"));
-app.use("/acc", require("./resources/acc/acc.router.js"));
-app.use("/bim360", require("./resources/bim360/bim360.router.js"));
-app.use("/datamanagement", require("./resources/data_management/data.management.router.js"));
-app.use("/modeldata", require("./resources/model_data/model.data.router.js"));
-app.use("/ai", require("./ia/ia.router.js"));
+
+// Endpoint to expose CSRF token if needed by frontend
+app.get("/csrf-token", csrfProtection, (req, res) => {
+  res.json({ csrfToken: req.csrfToken() });
+});
 
 // Health check endpoint
 app.get("/", readLimiter, (req, res) => {
   res.json({ message: "BAY Backend API alive 🚀" });
 });
+
+app.use("/general", requireAuth, require("./resources/general/general.router.js"));
+app.use("/acc", requireAuth ,require("./resources/acc/acc.router.js"));
+app.use("/bim360", requireAuth , require("./resources/bim360/bim360.router.js"));
+app.use("/datamanagement", requireAuth, require("./resources/data_management/data.management.router.js"));
+app.use("/modeldata", requireAuth, require("./resources/model_data/model.data.router.js"));
+app.use("/ai", requireAuth , require("./ia/ia.router.js"));
 
 // Global error handler (must be after all routes)
 app.use((err, req, res, next) => {

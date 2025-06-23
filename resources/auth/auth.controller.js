@@ -25,20 +25,17 @@ const GetThreeLeggedAuth = async (req, res) => {
     // Opciones base
     const cookieOptions = {
       httpOnly: true,
-      maxAge: 360_000_000, // ~100 horas
+      maxAge: 360_000_000, 
       path: "/",
     };
 
     if (process.env.NODE_ENV === "production") {
-      // Prod: HTTPS obligatorio + cookie para todo el dominio
       cookieOptions.secure = true;
       cookieOptions.sameSite = "None";
       cookieOptions.domain = ".156041440121.cloud.bayer.com";
     } else {
-      // Dev: HTTP + cookie enviada en XHR same-site
       cookieOptions.secure = false;
       cookieOptions.sameSite = "Lax";
-      // NO pongas domain aquí en dev
     }
 
     res.cookie("access_token", token, cookieOptions);

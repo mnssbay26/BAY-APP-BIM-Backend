@@ -9,8 +9,6 @@ const { authorizedHub } = require("../../../const/hubs.const");
 const GetProjects = async (req, res) => {
   const token = req.cookies["access_token"];
 
-  //console.log("Received token:", token);
-
   if (!token) {
     return res
       .status(401)
@@ -23,13 +21,9 @@ const GetProjects = async (req, res) => {
       { headers: { Authorization: `Bearer ${token}` } }
     );
 
-    //console.debug("Hubs response:", hubsResponse);
-
     const targetHubs = hubsResponse.data.filter((hub) =>
       authorizedHub.some((authHub) => authHub.id === hub.id)
     );
-
-    //console.debug("Target hubs:", targetHubs);
 
     if (targetHubs.length === 0) {
       return res.status(404).json({
@@ -58,8 +52,6 @@ const GetProjects = async (req, res) => {
 
     const projectsList = await Promise.all(projectPromises);
     const allProjects = projectsList.flat();
-
-    //console.debug("All projects:", allProjects);
 
     // Filter ACC projects
     const accProjects = allProjects.filter(

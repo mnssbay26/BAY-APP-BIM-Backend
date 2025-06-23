@@ -18,8 +18,6 @@ const GetProject = async (req, res) => {
       { headers: { Authorization: `Bearer ${token}` } }
     );
 
-    //console.debug("Project data:", projectdata);
-
     if (!projectdata || !projectdata.data) {
       return res.status(404).json({
         data: null,
