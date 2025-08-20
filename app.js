@@ -4,6 +4,7 @@ const rateLimit = require("express-rate-limit");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const dotenv = require("dotenv");
+dotenv.config();
 const csrf = require("csurf");
 const sanitizeRequest = require("./middleware/sanitize.middleware");
 const validatePayload = require("./middleware/validate.middleware");
@@ -11,8 +12,6 @@ const validatePayload = require("./middleware/validate.middleware");
 const { dbConnection } = require("./services/dynamo/dynamo.service.js");
 
 const requireAuth = require("./middleware/requireAuth.js");
-const { Logout } = require("./resources/auth/auth.controller.js");
-dotenv.config();
 
 const PORT = process.env.PORT;
 
