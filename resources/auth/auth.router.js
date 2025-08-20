@@ -1,5 +1,9 @@
 const express = require("express");
-const { GetThreeLeggedAuth, GetTokenAuth } = require("./auth.controller");
+const {
+    GetThreeLeggedAuth,
+    GetTokenAuth,
+    Logout,
+} = require("./auth.controller");
 
 /**
  * Router for Autodesk authentication endpoints.
@@ -24,5 +28,7 @@ router.get("/three-legged", GetThreeLeggedAuth);
  * @returns {object} 500 - JSON with error message on failure
  */
 router.get("/token", GetTokenAuth);
+
+router.post("/logout", Logout);
 
 module.exports = router;

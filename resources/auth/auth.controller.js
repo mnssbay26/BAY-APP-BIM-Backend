@@ -1,6 +1,6 @@
 const {
-  GetAPSThreeLeggedToken,
-  GetAPSToken,
+    GetAPSThreeLeggedToken,
+    GetAPSToken,
 } = require("../../utils/auth/auth.utils");
 
 /**
@@ -17,33 +17,33 @@ const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
  * @param {import('express').Response} res
  */
 const GetThreeLeggedAuth = async (req, res) => {
-  const { code } = req.query;
+    const { code } = req.query;
 
-  try {
-    const token = await GetAPSThreeLeggedToken(code);
+    try {
+        const token = await GetAPSThreeLeggedToken(code);
 
-    // Opciones base
-    const cookieOptions = {
-      httpOnly: true,
-      maxAge: 360_000_000, 
-      path: "/",
-    };
+        // Opciones base
+        const cookieOptions = {
+            httpOnly: true,
+            maxAge: 360_000_000,
+            path: "/",
+        };
 
-    if (process.env.NODE_ENV === "production") {
-      cookieOptions.secure = true;
-      cookieOptions.sameSite = "None";
-      cookieOptions.domain = ".156041440121.cloud.bayer.com";
-    } else {
-      cookieOptions.secure = false;
-      cookieOptions.sameSite = "Lax";
+        if (process.env.NODE_ENV === "production") {
+            cookieOptions.secure = true;
+            cookieOptions.sameSite = "None";
+            cookieOptions.domain = ".156041440121.cloud.bayer.com";
+        } else {
+            cookieOptions.secure = false;
+            cookieOptions.sameSite = "Lax";
+        }
+
+        res.cookie("access_token", token, cookieOptions);
+        return res.redirect(`${FRONTEND_URL}/platform`);
+    } catch (err) {
+        console.error("Error fetching three-legged token:", err);
+        return res.redirect(`${FRONTEND_URL}/platform`);
     }
-
-    res.cookie("access_token", token, cookieOptions);
-    return res.redirect(`${FRONTEND_URL}/platform`);
-  } catch (err) {
-    console.error("Error fetching three-legged token:", err);
-    return res.redirect(`${FRONTEND_URL}/platform`);
-  }
 };
 
 /**
@@ -53,21 +53,53 @@ const GetThreeLeggedAuth = async (req, res) => {
  * @param {import('express').Response} res
  */
 const GetTokenAuth = async (req, res) => {
-  try {
-    const token = await GetAPSToken();
-    return res.status(200).json({
-      data: { access_token: token },
-      error: null,
-      message: "Two-legged token generated successfully",
-    });
-  } catch (err) {
-    console.error("Error generating two-legged token:", err);
-    return res.status(500).json({
-      data: null,
-      error: err.message,
-      message: "Failed to generate token",
-    });
-  }
+    try {
+        const token = await GetAPSToken();
+        return res.status(200).json({
+            data: { access_token: token },
+            error: null,
+            message: "Two-legged token generated successfully",
+        });
+    } catch (err) {
+        console.error("Error generating two-legged token:", err);
+        return res.status(500).json({
+            data: null,
+            error: err.message,
+            message: "Failed to generate token",
+        });
+    }
 };
 
-module.exports = { GetThreeLeggedAuth, GetTokenAuth };
+const Logout = async (req, res) => {
+    console.log(req.headers);
+    try {
+        const cookieOptions = {
+            httpOnly: true,
+            path: "/",
+        };
+
+        if (process.env.NODE_ENV === "production") {
+            cookieOptions.secure = true;
+            cookieOptions.sameSite = "None";
+            cookieOptions.domain = ".156041440121.cloud.bayer.com";
+        } else {
+            cookieOptions.secure = false;
+            cookieOptions.sameSite = "Lax";
+        }
+        res.clearCookie("access_token", cookieOptions);
+        return res.status(200).json({
+            data: null,
+            error: null,
+            message: "Logout Successfull",
+        });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({
+            data: null,
+            error: err.message,
+            message: "Logout Failure",
+        });
+    }
+};
+
+module.exports = { GetThreeLeggedAuth, GetTokenAuth, Logout };
