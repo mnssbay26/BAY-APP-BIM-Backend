@@ -41,7 +41,10 @@ const GetThreeLeggedAuth = async (req, res) => {
         res.cookie("access_token", token, cookieOptions);
         return res.redirect(`${FRONTEND_URL}/platform`);
     } catch (err) {
-        console.error("Error fetching three-legged token:", err);
+        // redirect to login with login failure param on failed login
+        if (err.code === "ERR_BAD_REQUEST") {
+            return res.redirect(`${FRONTEND_URL}/login?failed_login=true`);
+        }
         return res.redirect(`${FRONTEND_URL}/platform`);
     }
 };
@@ -71,7 +74,6 @@ const GetTokenAuth = async (req, res) => {
 };
 
 const Logout = async (req, res) => {
-    console.log(req.headers);
     try {
         const cookieOptions = {
             httpOnly: true,
