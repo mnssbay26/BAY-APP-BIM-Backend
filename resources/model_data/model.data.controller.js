@@ -58,7 +58,7 @@ const PostModelData = async (req, res) => {
 
 const GetModelData = async (req, res) => {
   const { accountId, projectId } = req.params;
-  const service         = "model_data";
+  const service         = "model-data";
   const modelUrn        = req.query.modelUrn;
   const disciplineFilter= req.query.discipline;
 
@@ -74,7 +74,6 @@ const GetModelData = async (req, res) => {
     }
 
     res.json({ data: items });
-    //console.log("data", items);
   } catch (err) {
     console.error("Error fetching model data:", err);
     res.status(500).json({

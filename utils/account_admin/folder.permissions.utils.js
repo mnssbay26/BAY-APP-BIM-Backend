@@ -12,7 +12,7 @@ api.interceptors.response.use(
     const { response, config } = err;
     if (response?.status === 429) {
       const waitSec = parseInt(response.headers["retry-after"], 10) || 1;
-      //console.warn(`[API] ✖ 429 en ${config.url}, espero ${waitSec}s…`);
+      console.warn(`[API] ✖ 429 en ${config.url}, espero ${waitSec}s…`);
       await new Promise(r => setTimeout(r, waitSec * 1000));
       return api(config);
     }

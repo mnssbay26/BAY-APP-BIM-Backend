@@ -96,11 +96,16 @@ const GetIssues = async (req, res) => {
       attributeValueMap
     );
 
+    //console.log("Issues", issuesWithReadableAttributes);
+
+    //Get existing items from DynamoDB
     const existingItems = await queryDataService(accountId, projectId, "issues");
     const idsExisting = existingItems.map((it) => it.id);
 
+    //Get new Ids to insert
     const newIds = issuesWithReadableAttributes.map((i) => i.id);
 
+    //Delete old items
     const idsToDelete = idsExisting.filter((id) => !newIds.includes(id));
     await Promise.all(
       idsToDelete.map((id) =>
@@ -108,6 +113,7 @@ const GetIssues = async (req, res) => {
       )
     );
 
+    //Upsert new items
     await Promise.all(
       issuesWithReadableAttributes.map((issue) => {
         const item = mapIssueToItem(issue, accountId, projectId);

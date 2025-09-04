@@ -4,23 +4,15 @@ const rateLimit = require("express-rate-limit");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const dotenv = require("dotenv");
-const csrf = require("csurf");
-const sanitizeRequest = require("./middleware/sanitize.middleware");
-const validatePayload = require("./middleware/validate.middleware");
 
 const {dbConnection} = require ('./services/dynamo/dynamo.service.js');
 
-const requireAuth = require("./middleware/requireAuth.js");
-
 dotenv.config();
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3000;
 
 //Initialize Express app
 const app = express();
-
-// Security: remove X-Powered-By header
-app.disable("x-powered-by");
 
 app.set("trust proxy", 1);
 
@@ -65,7 +57,7 @@ app.use(
 
 // Rate limiters
 const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, 
+  windowMs: 15 * 60 * 1000, // 15 minutes
   max: 30,
   standardHeaders: true,
   legacyHeaders: false,
@@ -75,14 +67,14 @@ const authLimiter = rateLimit({
   },
 });
 const writeLimiter = rateLimit({
-  windowMs: 1 * 60 * 1000, 
+  windowMs: 1 * 60 * 1000, // 1 minute
   max: 30,
   standardHeaders: true,
   legacyHeaders: false,
   message: { status: 429, error: "Too many write operations, please wait." },
 });
 const readLimiter = rateLimit({
-  windowMs: 1 * 60 * 1000,
+  windowMs: 1 * 60 * 1000, // 1 minute
   max: 1200,
   standardHeaders: true,
   legacyHeaders: false,
@@ -102,17 +94,13 @@ const allowedOrigin = [
 // Body parsers
 app.use(express.json({ limit: "250mb" }));
 app.use(express.urlencoded({ limit: "250mb", extended: true }));
-app.use(sanitizeRequest);
-app.post('*', validatePayload);
-app.patch('*', validatePayload);
-app.put('*', validatePayload);
 
 // CORS configuration
 app.use(
   cors({
     origin: allowedOrigin,
     methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Accept", "Authorization", "CSRF-Token"],
+    allowedHeaders: ["Content-Type", "Accept", "Authorization"],
     exposedHeaders: ["Content-Type", "Accept", "Authorization"],
     credentials: true,
     optionsSuccessStatus: 204,
@@ -127,42 +115,21 @@ if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
 
-
 // Cookie parser
 app.use(cookieParser());
 
-// CSRF protection
-const csrfProtection = csrf({ cookie: true });
-
-// Apply CSRF only to write routes for better security and compatibility
-app.use(["/modeldata", "/datamanagement"], csrfProtection);
-
 // Routes (consider adding specific rateLimiters per route as needed)
 app.use("/auth", authLimiter, require("./resources/auth/auth.router.js"));
-
-// Endpoint to expose CSRF token if needed by frontend
-app.get("/csrf-token", csrfProtection, (req, res) => {
-  res.json({ csrfToken: req.csrfToken() });
-});
+app.use("/general", require("./resources/general/general.router.js"));
+app.use("/acc", require("./resources/acc/acc.router.js"));
+app.use("/bim360", require("./resources/bim360/bim360.router.js"));
+app.use("/datamanagement", require("./resources/data_management/data.management.router.js"));
+app.use("/modeldata", require("./resources/model_data/model.data.router.js"));
+app.use("/ai", require("./ia/ia.router.js"));
 
 // Health check endpoint
 app.get("/", readLimiter, (req, res) => {
   res.json({ message: "BAY Backend API alive 🚀" });
-});
-
-app.use("/general", requireAuth, require("./resources/general/general.router.js"));
-app.use("/acc", requireAuth ,require("./resources/acc/acc.router.js"));
-app.use("/bim360", requireAuth , require("./resources/bim360/bim360.router.js"));
-app.use("/datamanagement", requireAuth, require("./resources/data_management/data.management.router.js"));
-app.use("/modeldata", requireAuth, require("./resources/model_data/model.data.router.js"));
-app.use("/ai", requireAuth , require("./ia/ia.router.js"));
-
-// Global error handler (must be after all routes)
-app.use((err, req, res, next) => {
-  console.error(err); // Internal log
-  res.status(err.status || 500).json({
-    error: err.message || "Internal Server Error",
-  });
 });
 
 dbConnection()
