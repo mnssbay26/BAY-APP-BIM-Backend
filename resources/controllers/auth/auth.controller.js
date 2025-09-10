@@ -7,7 +7,8 @@ const  GetThreeLeggedAuth  = async (req, res) => {
     const { code } = req.query;
 
     try {
-        await getThreeLeggedAuth(code);
+        const { token, cookieOptions } = await getThreeLeggedAuth(code);
+        res.cookie("access_token", token, cookieOptions);
         return res.redirect(`${FRONTEND_URL}/platform`);
     }
     catch (err) {
@@ -18,8 +19,10 @@ const  GetThreeLeggedAuth  = async (req, res) => {
 
 const GetTokenAuth = async (req, res) => {
     try {
-        await getTwoLeggedAuth();
+        const { token } = await getTwoLeggedAuth(); 
         return res.status(200).json({
+            data: { access_token: token },
+            error: null,
             message: "Two-legged token generated successfully",
         });
     }
@@ -31,4 +34,35 @@ const GetTokenAuth = async (req, res) => {
         });
     }
 };
-module.exports = { GetThreeLeggedAuth, GetTokenAuth };
+
+const PostLogout = async (req, res) => {
+    try {
+        
+        const cookieOptions = {
+            httpOnly: true,
+            path: "/",
+        };
+
+        if (process.env.NODE_ENV === "production") {
+            cookieOptions.secure = true;
+            cookieOptions.sameSite = "None";
+            cookieOptions.domain = ".156041440121.cloud.bayer.com"; 
+        } else {
+            cookieOptions.secure = false;
+            cookieOptions.sameSite = "Lax";
+        }
+
+        res.clearCookie("access_token", cookieOptions);
+        res.status(200).json({ message: "Logged out successfully" });
+    } catch (error) {
+        console.error("Error during logout:", error);
+        res.status(500).json({
+            message: "Error logging out",
+            error: error.message,
+        });
+    }
+};
+
+
+
+module.exports = { GetThreeLeggedAuth, GetTokenAuth, PostLogout };

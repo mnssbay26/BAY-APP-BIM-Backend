@@ -28,8 +28,7 @@ async function getThreeLeggedAuth (code) {
         // NO pongas domain aquí en dev
       }
 
-      res.cookie("access_token", token, cookieOptions);
-      return res.redirect(`${FRONTEND_URL}/platform`);
+      return { token, cookieOptions };
     } catch (err) {
       console.error("Error fetching three-legged token:", err);
       return res.redirect(`${FRONTEND_URL}/platform`);
