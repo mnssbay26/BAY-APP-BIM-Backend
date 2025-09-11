@@ -119,12 +119,12 @@ if (process.env.NODE_ENV === "development") {
 app.use(cookieParser());
 
 // Routes (consider adding specific rateLimiters per route as needed)
-app.use("/auth", authLimiter, require("./resources/auth/auth.router.js"));
-app.use("/general", require("./resources/general/general.router.js"));
-app.use("/acc", require("./resources/acc/acc.router.js"));
-app.use("/bim360", require("./resources/bim360/bim360.router.js"));
-app.use("/datamanagement", require("./resources/data_management/data.management.router.js"));
-app.use("/modeldata", require("./resources/model_data/model.data.router.js"));
+app.use("/auth", authLimiter, require("./resources/routers/auth.router.js"));
+app.use("/general", require("./resources/routers/general.router.js"));
+app.use("/acc", require("./resources/routers/acc.router.js"));
+app.use("/bim360", require("./resources/routers/bim360.router.js"));
+app.use("/datamanagement", require("./resources/routers/data.management.router.js"));
+app.use("/modeldata", require("./resources/routers/model.data.router.js"));
 app.use("/ai", require("./ia/ia.router.js"));
 
 // Health check endpoint

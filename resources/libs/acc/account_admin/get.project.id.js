@@ -1,10 +1,10 @@
-const axios = requiere ("axios")
+const axios = require ("axios")
 
-async function getProjectById (token, projectId) {
+async function getProjectById (token, accountId, projectId) {
     if (!token) throw new Error('Unauthorized: No token provided');
     if (!projectId) throw new Error('Project ID is required');
 
-    const { data: project } = await axios.get(`${process.env.AUTODESK_BASE_URL}/construction/admin/v1/projects/${projectId}`, {
+    const { data: project } = await axios.get(`${process.env.AUTODESK_BASE_URL}/project/v1/hubs/${accountId}/projects/${projectId}`, {
         headers: { Authorization: `Bearer ${token}` },
     });
 

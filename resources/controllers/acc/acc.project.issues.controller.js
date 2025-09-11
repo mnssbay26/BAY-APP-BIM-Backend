@@ -36,7 +36,7 @@ const {
 } = require("../../../services/dynamo/dynamo.service");
 const { mapIssueToItem } = require("../../../services/schemas/issues.schema");
 
-const GetIssues = async (req, res) => {
+const GetProjectIssues = async (req, res) => {
   const token = req.cookies["access_token"];
   const accountId = req.params.accountId;
   let projectId = req.params.projectId;
@@ -61,8 +61,11 @@ const GetIssues = async (req, res) => {
         message: "No Issues found for this project",
       });
     }
+    //console.log ("Project Issues:", projectIssues);
 
-    const issuesTypeNameData = await getProjectIssuesTypes(projectId, token);
+    const issuesTypeNameData = await getProjectIssuesTypes(token, projectId);
+
+    //console.log("Issue Types:", issuesTypeNameData);
 
     const issueTypeMap = issuesTypeNameData.results.reduce((acc, type) => {
       acc[type.id] = type.title;
@@ -70,13 +73,13 @@ const GetIssues = async (req, res) => {
     }, {});
 
     const userMap = await mapUserIdsToNames(
-      issues,
+      projectIssues,
       projectId,
       token,
       userFields
     );
 
-    const issuesWithUserNames = issues.map((issue) => ({
+    const issuesWithUserNames = projectIssues.map((issue) => ({
       ...issue,
       issueTypeName: issueTypeMap[issue.issueTypeId] || "Unknown Type",
       createdBy: userMap[issue.createdBy] || "Unknown User",
@@ -87,7 +90,7 @@ const GetIssues = async (req, res) => {
       ownerId: userMap[issue.ownerId] || "Unknown User",
     }));
 
-    const attrDef = await getProjectIssuesAttributeDefinitions(projectId, token);
+    const attrDef = await getProjectIssuesAttributeDefinitions(token, projectId);
 
     const attributeValueMap = buildCustomAttributeValueMap(attrDef.results);
 
@@ -140,4 +143,4 @@ const GetIssues = async (req, res) => {
     });
   }
 };
-module.exports = { GetIssues };
+module.exports = { GetProjectIssues };

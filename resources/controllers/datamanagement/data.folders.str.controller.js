@@ -2,10 +2,10 @@ const { default: axios } = require("axios");
 
 const {
   GetFolderContent,
-} = require("../../utils/account_admin/folder.content.utils");
+} = require("../../../utils/account_admin/folder.content.utils");
 const {
   GetFileVersions,
-} = require("../../utils/account_admin/file.version.utils");
+} = require("../../../utils/account_admin/file.version.utils");
 
 const GetFolderStructure = async (req, res) => {
   const token = req.cookies["access_token"];

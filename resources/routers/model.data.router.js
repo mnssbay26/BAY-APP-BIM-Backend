@@ -1,9 +1,9 @@
 const express = require("express");
 
-const { PostModelData } = require("./model.data.controller");
-const { GetModelData } = require("./model.data.controller");
-const { PatchModelData } = require("./model.data.controller");
-const { DeleteModelData } = require("./model.data.controller");
+const { PostModelData } = require("../controllers/model_data/model.data.controller");
+const { GetModelData } = require("../controllers/model_data/model.data.controller");
+const { PatchModelData } = require("../controllers/model_data/model.data.controller");
+const { DeleteModelData } = require("../controllers/model_data/model.data.controller");
 
 const router = express.Router();
 

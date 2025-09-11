@@ -1,4 +1,3 @@
-const axios = require("axios");
 
 const { defaul: axios } = require("axios");
 
@@ -36,7 +35,7 @@ const {
   mapSubmittalToItem,
 } = require("../../../services/schemas/submittals.schema");
 
-const GetSubmittals = async (req, res) => {
+const GetProjectSubmittals = async (req, res) => {
   const token = req.cookies["access_token"];
   const accountId = req.params.accountId;
   let projectId = req.params.projectId;
@@ -154,4 +153,4 @@ const GetSubmittals = async (req, res) => {
   }
 };
 
-module.exports = { GetSubmittals };
+module.exports = { GetProjectSubmittals };

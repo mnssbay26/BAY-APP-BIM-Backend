@@ -1,4 +1,4 @@
-const axios = requiere ("axios")
+const axios = require ("axios")
 
 async function getBim360ProjectIssues (token, projectId) {
     if (!token) throw new Error('Unauthorized: No token provided');

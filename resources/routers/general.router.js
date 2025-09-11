@@ -1,5 +1,5 @@
 const express = require("express");
-const { GetUserProfile } = require("./general.user.profile");
+const { GetUserProfile } = require("../controllers/general/general.user.profile");
 
 /**
  * Router for user profile endpoint.

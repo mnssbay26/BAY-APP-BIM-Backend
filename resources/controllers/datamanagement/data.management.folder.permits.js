@@ -2,13 +2,13 @@ const { default: axios } = require("axios");
 
 const {
   GetAllProjectFolders,
-} = require("../../utils/account_admin/all.project.folders.utils");
+} = require("../../../utils/account_admin/all.project.folders.utils");
 const {
   GetAllProjectUsers,
-} = require("../../utils/account_admin/all.project.users.utils");
+} = require("../../../utils/account_admin/all.project.users.utils");
 const {
   GetFolderPermissions,
-} = require("../../utils/account_admin/folder.permissions.utils");
+} = require("../../../utils/account_admin/folder.permissions.utils");
 
 async function GetFolderPermits(req, res) {
   const token = req.cookies["access_token"];

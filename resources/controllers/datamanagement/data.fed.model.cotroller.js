@@ -2,7 +2,7 @@ const axios = require("axios");
 
 const {
   GetFederatedModelFromFolders,
-} = require("../../utils/account_admin/fed.model.folders.utils");
+} = require("../../../utils/account_admin/fed.model.folders.utils");
 
 const match_words = ["FED", "FEDERATED", "FEDERADO"];
 

@@ -1,11 +1,11 @@
 const express = require("express");
-//const { GetProjects } = require("./account_admin/bim360.account.projects.controller");
-const { GetProject } = require("./account_admin/bim360.project.controller");
-const { GetProjectUsers } = require("./account_admin/bim360.project.users.controller");
-const { GetIssues } = require("./issues/bim360.issues.controller");
-const { GetRfis } = require("./rfis/bim360.rfis.controller");
 
-const { GetBim360Projects } = require ("../../resources/controllers/bim360/bim360.projects.controller.js")
+const { GetBim360Projects } = require ("../controllers/bim360/bim360.projects.controller.js")
+const { GetProject } = require ("../controllers/bim360/bim360.project.controller.js");
+const { GetProjectUsers } = require ("../controllers/bim360/bim360.project.users.controller.js");
+const { GetProjectIssues } = require ("../controllers/bim360/bim360.project.issues.controller.js");
+const { GetProjectRfis } = require ("../controllers/bim360/bim360.project.rfis.controller.js");
+
 /**
  * Router for BIM360 project endpoints
  * @type {import('express').Router}
@@ -23,7 +23,7 @@ const router = express.Router();
 router.get("/projects", GetBim360Projects);
 router.get("/projects/:accountId/:projectId", GetProject);
 router.get("/projects/:accountId/:projectId/users", GetProjectUsers);
-router.get("/projects/:accountId/:projectId/issues", GetIssues);
-router.get("/projects/:accountId/:projectId/rfis", GetRfis);
+router.get("/projects/:accountId/:projectId/issues", GetProjectIssues);
+router.get("/projects/:accountId/:projectId/rfis", GetProjectRfis);
 
 module.exports = router;

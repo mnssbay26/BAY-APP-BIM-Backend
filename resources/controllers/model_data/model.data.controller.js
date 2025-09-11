@@ -7,9 +7,9 @@ const {
    updateModelItem,
   PK_ATTR,
   MODEL_SK_ATTR,
-} = require("../../services/dynamo/dynamo.service");
+} = require("../../../services/dynamo/dynamo.service");
 
-const  {sanitize} = require("../../utils/general/sanitaze.db");
+const  {sanitize} = require("../../../utils/general/sanitaze.db");
 
 const PostModelData = async (req, res) => {
   const { accountId, projectId } = req.params;

@@ -1,5 +1,14 @@
-const { default: axios } = require("axios");
-const { authorizedHub } = require("../../../const/hubs.const");
+const axios = require("axios");
+
+const {
+  getAccountCompanies,
+} = require("../../libs/acc/account_admin/get.companies");
+const {
+  getProjectUsers,
+} = require("../../libs/acc/account_admin/get.project.users");
+const {
+  getProjectById,
+} = require("../../libs/acc/account_admin/get.project.id");
 
 const GetProject = async (req, res) => {
   const token = req.cookies["access_token"];
@@ -11,14 +20,18 @@ const GetProject = async (req, res) => {
       .status(401)
       .json({ data: null, error: "Unauthorized", message: "No token" });
   }
+  if (!projectId) {
+    return res
+      .status(400)
+      .json({
+        data: null,
+        error: "BadRequest",
+        message: "No projectId provided",
+      });
+  }
 
   try {
-    const { data: projectdata } = await axios.get(
-      `https://developer.api.autodesk.com/project/v1/hubs/${accountId}/projects/${projectId}`,
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-
-    //console.debug("Project data:", projectdata);
+    const projectdata = await getProjectById(token, accountId, projectId);
 
     if (!projectdata || !projectdata.data) {
       return res.status(404).json({
@@ -38,15 +51,14 @@ const GetProject = async (req, res) => {
       message: "Project retrieved successfully",
     });
   } catch (err) {
-    console.error("Error fetching project:", err.message);
-    if (err.response) {
-      console.error("Autodesk response:", err.response.data);
-    }
-    return res.status(500).json({
-      data: null,
-      error: err.message,
-      message: "Failed to retrieve project",
-    });
+    console.error("Error fetching project data:", err);
+    return res
+      .status(500)
+      .json({
+        data: null,
+        error: err.message,
+        message: "Failed to fetch project data.",
+      });
   }
 };
 

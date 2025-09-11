@@ -1,8 +1,8 @@
 const express = require("express");
 
-const { GetFederatedModel } = require("./data.fed.model.cotroller");
-const { GetFolderStructure} = require("./data.folders.str.controller");
-const { GetFolderPermits } = require("./data.management.folder.permits");
+const { GetFederatedModel } = require("../controllers/datamanagement/data.fed.model.cotroller");
+const { GetFolderStructure} = require("../controllers/datamanagement/data.folders.str.controller");
+const { GetFolderPermits } = require("../controllers/datamanagement/data.management.folder.permits");
 
 const router = express.Router();
 

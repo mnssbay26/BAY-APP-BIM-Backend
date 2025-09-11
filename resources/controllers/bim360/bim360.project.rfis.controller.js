@@ -39,7 +39,7 @@ const GetProjectRfis = async (req, res) => {
     }
 
     try {
-    const projectRfis = await getProjectRfis(token, projectId);
+    const projectRfis = await getBim360ProjectRfis(token, projectId);
     if (!Array.isArray(projectRfis) || projectRfis.length === 0) {
       return res.status(200).json({
         data: { rfis: [] },
@@ -49,9 +49,9 @@ const GetProjectRfis = async (req, res) => {
     }
 
     // Map user IDs to names for relevant fields
-    const userMap = await mapUserIdsToNames(rfis, userFields, token);
+    const userMap = await mapUserIdsToNames(projectRfis, userFields, token);
 
-    const rfisdatawithnames = rfis.map((rfi) => {
+    const rfisdatawithnames = projectRfis.map((rfi) => {
       const disciplineName =
         Array.isArray(rfi.discipline) && rfi.discipline.length > 0
           ? rfi.discipline.join(", ")

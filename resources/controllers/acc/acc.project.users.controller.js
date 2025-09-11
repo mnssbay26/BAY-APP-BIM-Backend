@@ -16,7 +16,7 @@ const GetProjectUsers = async (req, res) => {
   const accountId = req.params.accountId;
   const projectId = req.params.projectId;
 
-  if (!toke) {
+  if (!token) {
     return res
       .status(401)
       .json({ data: null, error: "Unauthorized", message: "No token" });
@@ -24,6 +24,7 @@ const GetProjectUsers = async (req, res) => {
 
   try {
     const projectUsers = await getProjectUsers(token, projectId);
+
 
     const existingItems = await queryDataService(accountId, projectId, "users");
     const idsExisting = existingItems.map((item) => item.userId);

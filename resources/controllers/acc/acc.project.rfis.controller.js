@@ -49,9 +49,9 @@ const GetProjectRfis = async (req, res) => {
     }
 
     // Map user IDs to names for relevant fields
-    const userMap = await mapUserIdsToNames(rfis, userFields, token);
+    const userMap = await mapUserIdsToNames(projectRfis, projectId, token);
 
-    const rfisdatawithnames = rfis.map((rfi) => {
+    const rfisdatawithnames = projectRfis.map((rfi) => {
       const disciplineName =
         Array.isArray(rfi.discipline) && rfi.discipline.length > 0
           ? rfi.discipline.join(", ")

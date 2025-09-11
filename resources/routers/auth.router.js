@@ -1,6 +1,6 @@
 const express = require("express");
 
-const {GetThreeLeggedAuth, GetTokenAuth, PostLogout} = require ("../../resources/controllers/auth/auth.controller")
+const {GetThreeLeggedAuth, GetTokenAuth, PostLogout} = require ("../controllers/auth/auth.controller")
 /**
  * Router for Autodesk authentication endpoints.
  * @type {import('express').Router}

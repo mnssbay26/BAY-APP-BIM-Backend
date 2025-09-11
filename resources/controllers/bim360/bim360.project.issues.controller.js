@@ -1,11 +1,11 @@
 const axios = require ("axios")
 
 const {
-  getProjectIssues,
-} = require("../../libs/acc/issues/get.project.issues");
+  getBim360ProjectIssues,
+} = require("../../libs/bim360/issues/get.project.issues");
 const {
-  getProjectIssuesTypes,
-} = require("../../libs/acc/issues/get.issues.type");
+  getBim360ProjectIssuesTypes,
+} = require("../../libs/bim360/issues/get.issues.type");
 
 const { 
     getBim360ProjectIssuesAttributeDefinitions 
@@ -37,7 +37,7 @@ const {
 const { mapIssueToItem } = require("../../../services/schemas/issues.schema");
 
 
-const GetIssues = async (req, res) => {
+const GetProjectIssues = async (req, res) => {
   const token = req.cookies["access_token"];
   const accountId = req.params.accountId;
   let projectId = req.params.projectId;
@@ -52,7 +52,9 @@ const GetIssues = async (req, res) => {
     }
 
     try {
-    const projectIssues = await getProjectIssues(token, projectId);
+    const projectIssues = await getBim360ProjectIssues(token, projectId);
+
+    //console.log ("Issues", projectIssues)
 
     if (!Array.isArray(projectIssues) || projectIssues.length === 0) {
       return res.status(200).json({
@@ -62,7 +64,7 @@ const GetIssues = async (req, res) => {
       });
     }
 
-    const issuesTypeNameData = await getProjectIssuesTypes(projectId, token);
+    const issuesTypeNameData = await getBim360ProjectIssuesTypes(token, projectId);
 
     const issueTypeMap = issuesTypeNameData.results.reduce((acc, type) => {
       acc[type.id] = type.title;
@@ -70,13 +72,13 @@ const GetIssues = async (req, res) => {
     }, {});
 
     const userMap = await mapUserIdsToNames(
-      issues,
+      projectIssues,
       projectId,
       token,
       userFields
     );
 
-    const issuesWithUserNames = issues.map((issue) => ({
+    const issuesWithUserNames = projectIssues.map((issue) => ({
       ...issue,
       issueTypeName: issueTypeMap[issue.issueTypeId] || "Unknown Type",
       createdBy: userMap[issue.createdBy] || "Unknown User",
@@ -87,7 +89,7 @@ const GetIssues = async (req, res) => {
       ownerId: userMap[issue.ownerId] || "Unknown User",
     }));
 
-    const attrDef = await getBim360ProjectIssuesAttributeDefinitions(projectId, token);
+    const attrDef = await getBim360ProjectIssuesAttributeDefinitions(token, projectId);
 
     const attributeValueMap = buildCustomAttributeValueMap(attrDef.results);
 
@@ -142,4 +144,4 @@ const GetIssues = async (req, res) => {
         });
     }
 };
-module.exports = { GetIssues };
+module.exports = { GetProjectIssues };
