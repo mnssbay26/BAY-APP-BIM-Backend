@@ -37,7 +37,7 @@ const GetProject = async (req, res) => {
       return res.status(404).json({
         data: null,
         error: "ProjectNotFound",
-        message: "Project not found or no data available",
+        message: "Project not found  or no data available",
       });
     }
 
