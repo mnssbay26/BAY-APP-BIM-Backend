@@ -10,6 +10,7 @@ const {
   getProjectById,
 } = require("../../libs/acc/account_admin/get.project.id");
 
+//Just do deploy
 const GetProject = async (req, res) => {
   const token = req.cookies["access_token"];
   const accountId = req.params.accountId;
