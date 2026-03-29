@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -e \"require\\(''./resources/libs/acc/assets/index.js''\\); console.log\\(''libs OK''\\)\")",
+      "Bash(node -e \"require\\(''./resources/controllers/acc/assets.controller.js''\\); console.log\\(''controller OK''\\)\")"
+    ]
+  }
+}

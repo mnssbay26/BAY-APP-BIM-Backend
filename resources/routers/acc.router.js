@@ -29,4 +29,10 @@ router.get("/projects/:accountId/:projectId/issues", GetProjectIssues);
 router.get("/projects/:accountId/:projectId/rfis", GetProjectRfis);
 router.get("/projects/:accountId/:projectId/submittals", GetProjectSubmittals);
 
+// ─── Assets ───────────────────────────────────────────────────────────────────
+const assetsController = require('../controllers/acc/assets.controller');
+
+router.get("/projects/:accountId/:projectId/assets",         assetsController.getAssetsEnriched);
+router.get("/projects/:accountId/:projectId/assets/summary", assetsController.getAssetsSummary);
+
 module.exports = router;
