@@ -26,4 +26,9 @@ router.get("/projects/:accountId/:projectId/users", GetProjectUsers);
 router.get("/projects/:accountId/:projectId/issues", GetProjectIssues);
 router.get("/projects/:accountId/:projectId/rfis", GetProjectRfis);
 
+// ─── Companies ────────────────────────────────────────────────────────────────
+const { GetProjectCompanies } = require('../controllers/bim360/bim360.project.companies.controller');
+
+router.get("/projects/:accountId/:projectId/companies", GetProjectCompanies);
+
 module.exports = router;

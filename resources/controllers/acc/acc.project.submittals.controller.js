@@ -1,6 +1,4 @@
 
-const { defaul: axios } = require("axios");
-
 const {
   getSubmittalsItems,
 } = require("../../libs/acc/submittals/get.submittals.items");
@@ -23,6 +21,8 @@ const userFields = [
   "submittedBy",
   "publishedBy",
   "sentToReviewBy",
+  "respondedBy",
+  "subcontractor",
 ];
 
 const {

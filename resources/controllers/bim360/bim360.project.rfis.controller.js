@@ -1,13 +1,8 @@
-const axios = require ("axios")
-
-const { getBim360ProjectRfis } = require ("../../libs/bim360/rfis/get.rfis")
+const { getBim360ProjectRfis } = require("../../libs/bim360/rfis/get.rfis");
 
 const {
   mapUserIdsToNames,
 } = require("../../../utils/account_admin/user.mapper.utils");
-const {
-  fetchAllPaginatedResults,
-} = require("../../../utils/general/pagination.utils");
 
 const userFields = [
   "createdBy",
@@ -15,6 +10,9 @@ const userFields = [
   "closedBy",
   "openedBy",
   "updatedBy",
+  "managerId",
+  "reviewers",
+  "respondedBy",
 ];
 
 const {
@@ -49,7 +47,7 @@ const GetProjectRfis = async (req, res) => {
     }
 
     // Map user IDs to names for relevant fields
-    const userMap = await mapUserIdsToNames(projectRfis, userFields, token);
+    const userMap = await mapUserIdsToNames(projectRfis, projectId, token, userFields);
 
     const rfisdatawithnames = projectRfis.map((rfi) => {
       const disciplineName =
@@ -60,17 +58,21 @@ const GetProjectRfis = async (req, res) => {
       return {
         ...rfi,
         createdBy: userMap[rfi.createdBy] || "Unknown User",
-        assignedTo: userMap[rfi.assignedTo] || "Unknown User",
+        assignedTo: Array.isArray(rfi.assignedTo)
+          ? rfi.assignedTo.map((a) => userMap[a.id || a] || "Unknown User").join(", ")
+          : userMap[rfi.assignedTo] || "Unknown User",
         managerId: userMap[rfi.managerId] || "Unknown User",
         respondedBy: userMap[rfi.respondedBy] || "Unknown User",
-        reviewerId: userMap[rfi.reviewerId] || "Unknown User",
+        reviewers: Array.isArray(rfi.reviewers)
+          ? rfi.reviewers.map((r) => userMap[r.id || r] || "Unknown User").join(", ")
+          : "No Reviewers",
         updatedBy: userMap[rfi.updatedBy] || "Unknown User",
         closedBy: userMap[rfi.closedBy] || "Unknown User",
         discipline: disciplineName,
       };
     });
 
-    //console.log("RFIS", rfisdatawithnames);
+    console.log("RFIS", rfisdatawithnames);
 
     const existingItems = await queryDataService(accountId, projectId, "rfis");
     const idsExisting = existingItems.map((item) => item.rfiId);

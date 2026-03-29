@@ -9,9 +9,12 @@ const {
 const userFields = [
   "createdBy",
   "assignedTo",
+  "respondedBy",
   "closedBy",
-  "openedBy",
   "updatedBy",
+  "managerId",
+  "reviewers",
+  "coReviewers",
 ];
 
 const {
@@ -45,8 +48,10 @@ const GetProjectRfis = async (req, res) => {
       });
     }
 
+    //console.log("Raw RFIs", projectRfis);
+
     // Map user IDs to names for relevant fields
-    const userMap = await mapUserIdsToNames(projectRfis, projectId, token);
+    const userMap = await mapUserIdsToNames(projectRfis, projectId, token, userFields);
 
     const rfisdatawithnames = projectRfis.map((rfi) => {
       const disciplineName =
@@ -57,10 +62,14 @@ const GetProjectRfis = async (req, res) => {
       return {
         ...rfi,
         createdBy: userMap[rfi.createdBy] || "Unknown User",
-        assignedTo: userMap[rfi.assignedTo] || "Unknown User",
+        assignedTo: Array.isArray(rfi.assignedTo)
+          ? rfi.assignedTo.map((a) => userMap[a.id || a] || "Unknown User").join(", ")
+          : userMap[rfi.assignedTo] || "Unknown User",
         managerId: userMap[rfi.managerId] || "Unknown User",
         respondedBy: userMap[rfi.respondedBy] || "Unknown User",
-        reviewerId: userMap[rfi.reviewerId] || "Unknown User",
+        reviewers: Array.isArray(rfi.reviewers)
+          ? rfi.reviewers.map((r) => userMap[r.id || r] || "Unknown User").join(", ")
+          : "No Reviewers",
         updatedBy: userMap[rfi.updatedBy] || "Unknown User",
         closedBy: userMap[rfi.closedBy] || "Unknown User",
         discipline: disciplineName,

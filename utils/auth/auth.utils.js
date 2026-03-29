@@ -70,7 +70,7 @@ const GetAPSToken = async () => {
 
   const requestData = new URLSearchParams({
     grant_type: "client_credentials",
-    scope: "data:read data:write bucket:create bucket:read bucket:delete",
+    scope: "data:read data:write bucket:create bucket:read bucket:delete account:read",
   }).toString();
 
   const headers = {

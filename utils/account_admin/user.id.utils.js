@@ -15,6 +15,7 @@ const GetUserbyuserId = async (userId, projectId, token) => {
     if (!data || !data.data) {
       throw new Error("User not found or no data available");
     }
+
     return data;
   } catch (error) {
     console.error("Error fetching user by userId:", error.message);

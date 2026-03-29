@@ -1,29 +1,19 @@
-const { GetUserbyuserId } = require("./user.id.utils");
+const { getProjectUsers } = require("../../resources/libs/acc/account_admin/get.project.users");
 
-const mapUserIdsToNames = async (items, projectId, token) => {
-  const userIds = new Set();
+const mapUserIdsToNames = async (items, projectId, token, userFields = []) => {
+  const allUsers = await getProjectUsers(token, projectId);
 
-  items.forEach((item) => {
-    if (item.userId) {
-      userIds.add(item.userId);
-    }
+  const userMap = {};
+  allUsers.forEach((user) => {
+    const name =
+      user?.name ||
+      `${user.firstName || ""} ${user.lastName || ""}`.trim() ||
+      "Unknown User";
+    if (user.id) userMap[user.id] = name;
+    if (user.autodeskId) userMap[user.autodeskId] = name;
+    if (user.analyticsId) userMap[user.analyticsId] = name;
   });
 
-  const uniqueUserIds = Array.from(userIds);
-  const userMap = {};
-
-  await Promise.all(
-    uniqueUserIds.map(async (userId) => {
-      try {
-        const user = await GetUserbyuserId(userId, projectId, token);
-        const name =
-          user?.name || `${user.firstName || ""} ${user.lastName || ""}`.trim();
-        userMap[userId] = name || "Unknown User";
-      } catch {
-        userMap[userId] = "Unknown User";
-      }
-    })
-  );
   return userMap;
 };
 

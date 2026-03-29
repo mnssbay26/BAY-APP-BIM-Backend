@@ -35,4 +35,9 @@ const assetsController = require('../controllers/acc/assets.controller');
 router.get("/projects/:accountId/:projectId/assets",         assetsController.getAssetsEnriched);
 router.get("/projects/:accountId/:projectId/assets/summary", assetsController.getAssetsSummary);
 
+// ─── Companies ────────────────────────────────────────────────────────────────
+const { GetProjectCompanies } = require('../controllers/acc/acc.project.companies.controller');
+
+router.get("/projects/:accountId/:projectId/companies", GetProjectCompanies);
+
 module.exports = router;
