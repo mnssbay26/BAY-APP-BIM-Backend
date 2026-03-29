@@ -5,23 +5,6 @@ const {
 } = require("../../libs/acc/assets/index");
 
 // ─── Helper: obtiene todos los assets recursivamente via cursorState ──────────
-async function fetchAllAssets(token, projectId, filters = {}) {
-  let allResults = [];
-  let cursorState = null;
-
-  do {
-    const queryParams = { limit: 200, ...filters };
-    if (cursorState) queryParams.cursorState = cursorState;
-
-    const page = await getAssets(token, projectId, queryParams);
-    allResults = allResults.concat(page.results || []);
-
-    const nextCursor = page.pagination?.cursorState;
-    cursorState = nextCursor && nextCursor !== cursorState ? nextCursor : null;
-  } while (cursorState);
-
-  return allResults;
-}
 
 // ─── getAssetsEnriched ────────────────────────────────────────────────────────
 const getAssetsEnriched = async (req, res) => {
@@ -44,7 +27,7 @@ const getAssetsEnriched = async (req, res) => {
 
   try {
     const [allAssets, categoriesResult, statusesResult] = await Promise.all([
-      fetchAllAssets(token, projectId, filters),
+      getAssets(token, projectId, { limit: 200, ...filters }),
       getCategories(token, projectId).catch((e) => { console.warn("categories:", e.message); return []; }),
       getStatuses(token, projectId).catch((e)   => { console.warn("statuses:", e.message);   return []; }),
     ]);
@@ -107,18 +90,7 @@ const getAssetsSummary = async (req, res) => {
   }
 
   try {
-    // Fetch ALL assets across all pages
-    let allAssets = [];
-    let cursorState = undefined;
-
-    do {
-      const pageData = await getAssets(token, projectId, {
-        limit: 200,
-        ...(cursorState ? { cursorState } : {}),
-      });
-      allAssets = allAssets.concat(pageData.results || []);
-      cursorState = pageData.pagination?.cursorState || null;
-    } while (cursorState);
+    const allAssets = await getAssets(token, projectId, { limit: 200 });
 
     // Load categories and statuses for name resolution
     const [categoriesResult, statusesResult] = await Promise.allSettled([

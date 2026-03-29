@@ -1,26 +1,44 @@
-const axios = require("axios");
+const {
+  fetchAllPaginatedResults,
+} = require("../../../../utils/general/pagination.utils");
 
 async function getAssets(token, projectId, queryParams = {}) {
   if (!token) throw new Error('Unauthorized: No token provided');
   if (!projectId) throw new Error('Project ID is required');
 
-  const params = {};
-  if (queryParams.limit)                          params.limit = queryParams.limit;
-  if (queryParams.cursorState)                    params.cursorState = queryParams.cursorState;
-  if (queryParams.filterIsActive !== undefined)   params['filter[isActive]'] = queryParams.filterIsActive;
-  if (queryParams.filterCategoryId)               params['filter[categoryId]'] = queryParams.filterCategoryId;
-  if (queryParams.filterStatusId)                 params['filter[statusId]'] = queryParams.filterStatusId;
-  if (queryParams.filterLocationId)               params['filter[locationId]'] = queryParams.filterLocationId;
-
-  const { data } = await axios.get(
-    `${process.env.AUTODESK_BASE_URL}/construction/assets/v2/projects/${projectId}/assets`,
-    {
-      headers: { Authorization: `Bearer ${token}` },
-      params,
-    }
+  const url = new URL(
+    `${process.env.AUTODESK_BASE_URL}/construction/assets/v2/projects/${projectId}/assets`
   );
 
-  return data;
+  if (queryParams.limit) {
+    url.searchParams.set("limit", String(queryParams.limit));
+  } else {
+    url.searchParams.set("limit", "200");
+  }
+
+  if (queryParams.cursorState) {
+    url.searchParams.set("cursorState", String(queryParams.cursorState));
+  }
+
+  if (queryParams.filterIsActive !== undefined) {
+    url.searchParams.set("filter[isActive]", String(queryParams.filterIsActive));
+  }
+
+  if (queryParams.filterCategoryId) {
+    url.searchParams.set("filter[categoryId]", String(queryParams.filterCategoryId));
+  }
+
+  if (queryParams.filterStatusId) {
+    url.searchParams.set("filter[statusId]", String(queryParams.filterStatusId));
+  }
+
+  if (queryParams.filterLocationId) {
+    url.searchParams.set("filter[locationId]", String(queryParams.filterLocationId));
+  }
+
+  return fetchAllPaginatedResults(url.toString(), token, {
+    cursorParam: "cursorState",
+  });
 }
 
 module.exports = { getAssets };

@@ -5,9 +5,6 @@ const { getProjectRfis } = require("../../libs/acc/rfis/get.rfis");
 const {
   mapUserIdsToNames,
 } = require("../../../utils/account_admin/user.mapper.utils");
-const {
-  fetchAllPaginatedResults,
-} = require("../../../utils/general/pagination.utils");
 
 const userFields = [
   "createdBy",

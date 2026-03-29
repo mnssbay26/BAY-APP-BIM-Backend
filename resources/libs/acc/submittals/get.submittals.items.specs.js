@@ -1,13 +1,15 @@
-const axios = require ("axios")
+const {
+  fetchCompletePaginatedResponse,
+} = require("../../../../utils/general/pagination.utils");
 
 async function getSubmittalsItemSpecs (token, projectId,) {
 
     if (!token) throw new Error('Unauthorized: No token provided');
     if (!projectId) throw new Error('Project ID is required');
 
-    const { data: submittalsItemsSpecs } = await axios.get(`${process.env.AUTODESK_BASE_URL}/construction/submittals/v2/projects/${projectId}/specs`, {
-        headers: { Authorization: `Bearer ${token}` },
-    });
-    return submittalsItemsSpecs;
+    return fetchCompletePaginatedResponse(
+      `${process.env.AUTODESK_BASE_URL}/construction/submittals/v2/projects/${projectId}/specs`,
+      token
+    );
 }
 module.exports = { getSubmittalsItemSpecs };

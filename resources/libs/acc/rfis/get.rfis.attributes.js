@@ -1,12 +1,14 @@
-const axios = require ("axios")
+const {
+  fetchCompletePaginatedResponse,
+} = require("../../../../utils/general/pagination.utils");
 
 async function getRfisAttributes (token, projectId) {
     if (!token) throw new Error('Unauthorized: No token provided');
     if (!projectId) throw new Error('Project ID is required');
 
-    const { data: attributes } = await axios.get(`${process.env.AUTODESK_BASE_URL}/construction/rfis/v3/projects/${projectId}/attributes`, {
-        headers: { Authorization: `Bearer ${token}` },
-    });
-    return attributes;
+    return fetchCompletePaginatedResponse(
+      `${process.env.AUTODESK_BASE_URL}/construction/rfis/v3/projects/${projectId}/attributes`,
+      token
+    );
 }
 module.exports = { getRfisAttributes };
