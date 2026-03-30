@@ -12,7 +12,6 @@ const GetProjectCompanies = async (req, res) => {
   try {
     const { token } = await getTwoLeggedAuth();
 
-
     const companies = await getProjectCompanies(token,accountId, projectId);
 
     return res.status(200).json({

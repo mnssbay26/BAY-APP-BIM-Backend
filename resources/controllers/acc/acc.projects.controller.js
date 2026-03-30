@@ -29,7 +29,7 @@ const GetAccProjects = async (req, res) => {
 
         //console.log ("Target Hubs", targetHubs)
 
-        // Fetch projects for each authorized hub's account
+        // Fetch projects for each authorized hub's account general
         const projectPromises = targetHubs.map((hub) =>
             getAccountProjects(token, hub.id)
                 .catch((err) => {
